@@ -1,0 +1,57 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model Food {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(50)
+  price           Float
+  FoodIngredient  FoodIngredient[]
+  OrderFoodLiquid OrderFoodLiquid[]
+}
+
+model Liquid {
+  id              Int               @id @default(autoincrement())
+  OrderFoodLiquid OrderFoodLiquid[]
+}
+
+model Ingredient {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(50)
+  quantity       Int
+  FoodIngredient FoodIngredient[]
+}
+
+model FoodIngredient {
+  id           Int        @id @default(autoincrement())
+  foodId       Int
+  food         Food       @relation(fields: [foodId], references: [id])
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+}
+
+model Order {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(30)
+  surname         String            @db.VarChar(30)
+  numberOfPeople  Int
+  description     String?           @db.Text
+  OrderFoodLiquid OrderFoodLiquid[]
+}
+
+model OrderFoodLiquid {
+  id       Int    @id @default(autoincrement())
+  foodId   Int
+  food     Food   @relation(fields: [foodId], references: [id])
+  liquidId Int
+  liquid   Liquid @relation(fields: [liquidId], references: [id])
+  orderId  Int
+  order    Order  @relation(fields: [orderId], references: [id])
+}
