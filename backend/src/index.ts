@@ -7,11 +7,16 @@ import express, { NextFunction, Request, Response } from 'express';
 import authRouter from './routes/auth';
 import { barrier } from './middlewares/auth-barrier';
 import customError from '../types/customError';
+import adminRouter from './routes/admin';
+import publicRouter from './routes/public';
 
 const app = express();
 
-//PUBLIC - MIDDLEWARE
+//LIB - MIDDLEWARE
 app.use(bodyParser.json());
+
+//PUBLIC - MIDDLEWARE
+app.use(publicRouter);
 
 //AUTH Verification
 app.use('/auth', authRouter);
@@ -20,10 +25,17 @@ app.use('/auth', authRouter);
 app.use('/admin', barrier);
 
 //ADMIN - MIDDLEWARE
+app.use('/admin', adminRouter);
+
+//404 not found
 
 //ERROR HANDLING MIDDLEWARE
 app.use((err: customError, req: Request, res: Response, next: NextFunction) => {
-    return res.status(err.statusCode).json({ message: err.message });
+    const statusCode = 500;
+    const message = 'Internal server error.';
+    return res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || message });
 });
 
 app.listen(process.env.PORT, () => {

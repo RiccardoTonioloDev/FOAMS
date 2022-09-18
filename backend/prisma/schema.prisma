@@ -10,16 +10,16 @@ datasource db {
 }
 
 model Food {
-  id              Int               @id @default(autoincrement())
-  name            String            @db.VarChar(50)
+  id              Int              @id @default(autoincrement())
+  name            String           @db.VarChar(50)
   price           Float
   FoodIngredient  FoodIngredient[]
-  OrderFoodLiquid OrderFoodLiquid[]
+  OrderFoodLiquid OrderFood[]
 }
 
 model Liquid {
-  id              Int               @id @default(autoincrement())
-  OrderFoodLiquid OrderFoodLiquid[]
+  id              Int           @id @default(autoincrement())
+  OrderFoodLiquid OrderLiquid[]
 }
 
 model Ingredient {
@@ -35,22 +35,33 @@ model FoodIngredient {
   food         Food       @relation(fields: [foodId], references: [id])
   ingredientId Int
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  amount       Int
 }
 
 model Order {
-  id              Int               @id @default(autoincrement())
-  name            String            @db.VarChar(30)
-  surname         String            @db.VarChar(30)
-  numberOfPeople  Int
-  description     String?           @db.Text
-  OrderFoodLiquid OrderFoodLiquid[]
+  id             Int           @id @default(autoincrement())
+  name           String        @db.VarChar(30)
+  surname        String        @db.VarChar(30)
+  numberOfPeople Int
+  description    String?       @db.Text
+  status         String
+  OrderFood      OrderFood[]
+  OrderLiquid    OrderLiquid[]
 }
 
-model OrderFoodLiquid {
-  id       Int    @id @default(autoincrement())
+model OrderFood {
+  id       Int   @id @default(autoincrement())
   foodId   Int
-  food     Food   @relation(fields: [foodId], references: [id])
+  quantity Int
+  food     Food  @relation(fields: [foodId], references: [id])
+  orderId  Int
+  order    Order @relation(fields: [orderId], references: [id])
+}
+
+model OrderLiquid {
+  id       Int    @id @default(autoincrement())
   liquidId Int
+  quantity Int
   liquid   Liquid @relation(fields: [liquidId], references: [id])
   orderId  Int
   order    Order  @relation(fields: [orderId], references: [id])
