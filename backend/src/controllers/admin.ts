@@ -264,7 +264,7 @@ export const deleteFood = async (
     const bodySchema = z.object({
         foodId: z
             .number({
-                required_error: 'Please provide a food id.',
+                required_error: 'Please provide a foodId.',
                 invalid_type_error: 'Please provide a valid foodId'
             })
             .int('Please provide an Integer for foodId.')
@@ -331,10 +331,10 @@ export const deleteIngredient = async (
     const bodySchema = z.object({
         ingredientId: z
             .number({
-                required_error: 'Please provide a food id.',
-                invalid_type_error: 'Please provide a valid foodId'
+                required_error: 'Please provide a ingredientId.',
+                invalid_type_error: 'Please provide a valid ingredientId'
             })
-            .int('Please provide an Integer for foodId.')
+            .int('Please provide an Integer for ingredientId.')
     });
     const ingredientToDelete = bodySchema.safeParse(req.body);
     if (!ingredientToDelete.success) {
@@ -424,10 +424,55 @@ export const deleteIngredient = async (
         }
         return errorGenerator('Internal server error', 500, next);
     }
-    return res
-        .status(200)
-        .json({
-            message: 'Ingredient deleted successfully.',
-            ingredient: deletedIngredient[1]
-        });
+    return res.status(200).json({
+        message: 'Ingredient deleted successfully.',
+        ingredient: deletedIngredient[1]
+    });
+};
+
+export const deleteLiquid = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const bodySchema = z.object({
+        liquidId: z
+            .number({
+                required_error: 'Please provide a liquidId.',
+                invalid_type_error: 'Please provide a valid liquidId.'
+            })
+            .int('Please provide an Integer for liquidId.')
+    });
+    const liquidToDelete = bodySchema.safeParse(req.body);
+    if (!liquidToDelete.success) {
+        return errorGenerator(
+            liquidToDelete.error.errors[0].message,
+            422,
+            next
+        );
+    }
+    let deletedLiquid;
+    try {
+        deletedLiquid = await prisma.$transaction([
+            prisma.orderLiquid.deleteMany({
+                where: {
+                    liquidId: liquidToDelete.data.liquidId
+                }
+            }),
+            prisma.liquid.delete({
+                where: {
+                    id: liquidToDelete.data.liquidId
+                }
+            })
+        ]);
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    return res.status(200).json({
+        message: 'Liquid deleted successfully.',
+        liquid: deletedLiquid[1]
+    });
 };
