@@ -322,3 +322,112 @@ export const deleteFood = async (
         .status(200)
         .json({ message: 'Deleted food successfully.', food: deletedFood[2] });
 };
+
+export const deleteIngredient = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const bodySchema = z.object({
+        ingredientId: z
+            .number({
+                required_error: 'Please provide a food id.',
+                invalid_type_error: 'Please provide a valid foodId'
+            })
+            .int('Please provide an Integer for foodId.')
+    });
+    const ingredientToDelete = bodySchema.safeParse(req.body);
+    if (!ingredientToDelete.success) {
+        return errorGenerator(
+            ingredientToDelete.error.errors[0].message,
+            422,
+            next
+        );
+    }
+    let deletedIngredient;
+    try {
+        const foodIngredientsToDelete = await prisma.foodIngredient.findMany({
+            where: {
+                ingredientId: ingredientToDelete.data.ingredientId
+            }
+        });
+        const foodToDelete = await prisma.food.findMany({
+            where: {
+                id: {
+                    in: foodIngredientsToDelete.map(
+                        foodIngredient => foodIngredient.foodId
+                    )
+                }
+            }
+        });
+        const foodToDeleteIds = foodToDelete.map(food => food.id);
+        const foodIngredientToDeleteBecauseOfFoodDelete = await prisma.foodIngredient.findMany(
+            {
+                where: {
+                    AND: [
+                        {
+                            foodId: {
+                                in: foodToDeleteIds
+                            }
+                        },
+                        {
+                            ingredientId: {
+                                not: ingredientToDelete.data.ingredientId
+                            }
+                        }
+                    ]
+                }
+            }
+        );
+        const fetchOrderFoodToDelete = await prisma.orderFood.findMany({
+            where: {
+                foodId: {
+                    in: foodToDeleteIds
+                }
+            }
+        });
+        deletedIngredient = await prisma.$transaction([
+            prisma.foodIngredient.deleteMany({
+                where: {
+                    id: {
+                        in: foodIngredientToDeleteBecauseOfFoodDelete
+                            .concat(foodIngredientsToDelete)
+                            .map(foodIngredient => foodIngredient.id)
+                    }
+                }
+            }),
+            prisma.ingredient.deleteMany({
+                where: {
+                    id: ingredientToDelete.data.ingredientId
+                }
+            }),
+            prisma.orderFood.deleteMany({
+                where: {
+                    id: {
+                        in: fetchOrderFoodToDelete.map(
+                            orderFood => orderFood.id
+                        )
+                    }
+                }
+            }),
+            prisma.food.deleteMany({
+                where: {
+                    id: {
+                        in: foodToDeleteIds
+                    }
+                }
+            })
+        ]);
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    return res
+        .status(200)
+        .json({
+            message: 'Ingredient deleted successfully.',
+            ingredient: deletedIngredient[1]
+        });
+};

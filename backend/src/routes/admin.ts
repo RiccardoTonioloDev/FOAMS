@@ -4,7 +4,8 @@ import {
     addQuantity,
     addFood,
     addLiquid,
-    deleteFood
+    deleteFood,
+    deleteIngredient
 } from '../controllers/admin';
 const adminRouter = express.Router();
 
@@ -56,5 +57,11 @@ adminRouter.post('/add-liquid', addLiquid);
 //     "foodId": number (Integer)
 // }
 adminRouter.post('/delete-food', deleteFood);
+// POST admin/delete-ingredient
+// must send:
+// {
+//     "ingredientId": number (Integer)
+// }
+adminRouter.post('/delete-ingredient', deleteIngredient);
 
 export default adminRouter;

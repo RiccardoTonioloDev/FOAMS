@@ -1,4 +1,5 @@
-import express from 'express';
+import prisma from '../database/prisma-db';
+import express, { Request, Response } from 'express';
 import {
     createOrder,
     fetchFood,
@@ -36,5 +37,11 @@ publicRouter.get('/liquids', fetchLiquids);
 //      },
 // }
 publicRouter.post('/create-order', createOrder);
+
+//IN CASE OF EMERGENCY (JUST TO CHECK OR FIX)
+// publicRouter.use('/', async (req: Request, res: Response) => {
+//     const prova = await prisma.foodIngredient.deleteMany();
+//     res.status(200).json({ foodIngredient: prova });
+// });
 
 export default publicRouter;
