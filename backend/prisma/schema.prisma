@@ -19,6 +19,8 @@ model Food {
 
 model Liquid {
   id              Int           @id @default(autoincrement())
+  name            String
+  price           Float
   OrderFoodLiquid OrderLiquid[]
 }
 

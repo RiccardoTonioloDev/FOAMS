@@ -32,7 +32,7 @@ export const fetchFood = async (
         }
         return errorGenerator('Internal server error', 500, next);
     }
-    res.status(200).json({ foods: foods });
+    return res.status(200).json({ foods: foods });
 };
 
 export const fetchIngredients = async (
@@ -54,5 +54,27 @@ export const fetchIngredients = async (
         }
         return errorGenerator('Internal server error', 500, next);
     }
-    res.status(200).json({ ingredients: ingredients });
+    return res.status(200).json({ ingredients: ingredients });
+};
+export const fetchLiquids = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    let liquids;
+    try {
+        liquids = await prisma.liquid.findMany({
+            select: {
+                id: true,
+                name: true,
+                price: true
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    return res.status(200).json({ liquids: liquids });
 };

@@ -209,3 +209,49 @@ export const addFood = async (
         .status(200)
         .json({ message: 'Food created successfully.', food: addedFood });
 };
+
+export const addLiquid = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const bodySchema = z.object({
+        liquid: z.object(
+            {
+                name: z.string({
+                    required_error: 'Please provide a name.',
+                    invalid_type_error: 'Please provide a valid name'
+                }),
+                price: z.number({
+                    required_error: 'Please provide a price.',
+                    invalid_type_error: 'Please provide a valid price'
+                })
+            },
+            {
+                invalid_type_error: 'Please provide a valid liquid.',
+                required_error: 'Please provide a liquid.'
+            }
+        )
+    });
+    const liquidToAdd = bodySchema.safeParse(req.body);
+    if (!liquidToAdd.success) {
+        return errorGenerator(liquidToAdd.error.errors[0].message, 422, next);
+    }
+    let addedLiquid;
+    try {
+        addedLiquid = await prisma.liquid.create({
+            data: {
+                name: liquidToAdd.data.liquid.name,
+                price: liquidToAdd.data.liquid.price
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    return res
+        .status(200)
+        .json({ message: 'Liquid added successfully.', liquid: addedLiquid });
+};

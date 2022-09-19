@@ -1,10 +1,16 @@
 import express from 'express';
-import { fetchFood, fetchIngredients } from '../controllers/public';
+import {
+    fetchFood,
+    fetchIngredients,
+    fetchLiquids
+} from '../controllers/public';
 const publicRouter = express.Router();
 
-// GET /food
-publicRouter.get('/food', fetchFood);
+// GET /foods
+publicRouter.get('/foods', fetchFood);
 //GET /ingredients
 publicRouter.get('/ingredients', fetchIngredients);
+//GET /liquids
+publicRouter.get('/liquids', fetchLiquids);
 
 export default publicRouter;

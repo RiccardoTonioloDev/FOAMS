@@ -1,5 +1,10 @@
 import express from 'express';
-import { addIngredient, addQuantity, addFood } from '../controllers/admin';
+import {
+    addIngredient,
+    addQuantity,
+    addFood,
+    addLiquid
+} from '../controllers/admin';
 const adminRouter = express.Router();
 
 // POST admin/add-ingredient
@@ -33,5 +38,14 @@ adminRouter.post('/add-quantity', addQuantity);
 //      },
 // }
 adminRouter.post('/add-food', addFood);
+// POST admin/add-liquid
+// must send:
+// {
+//     "liquid": {
+//          "name": string
+//          "price": number
+//      },
+// }
+adminRouter.post('/add-liquid', addLiquid);
 
 export default adminRouter;
