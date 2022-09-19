@@ -255,3 +255,70 @@ export const addLiquid = async (
         .status(200)
         .json({ message: 'Liquid added successfully.', liquid: addedLiquid });
 };
+
+export const deleteFood = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const bodySchema = z.object({
+        foodId: z
+            .number({
+                required_error: 'Please provide a food id.',
+                invalid_type_error: 'Please provide a valid foodId'
+            })
+            .int('Please provide an Integer for foodId.')
+    });
+    const foodToDelete = bodySchema.safeParse(req.body);
+    if (!foodToDelete.success) {
+        return errorGenerator(foodToDelete.error.errors[0].message, 422, next);
+    }
+    let deletedFood;
+    try {
+        const fetchFoodIngredientsToDelete = await prisma.foodIngredient.findMany(
+            {
+                where: {
+                    foodId: foodToDelete.data.foodId
+                }
+            }
+        );
+        const fetchOrderFoodToDelete = await prisma.orderFood.findMany({
+            where: {
+                foodId: foodToDelete.data.foodId
+            }
+        });
+        deletedFood = await prisma.$transaction([
+            prisma.foodIngredient.deleteMany({
+                where: {
+                    id: {
+                        in: fetchFoodIngredientsToDelete.map(
+                            foodIngredient => foodIngredient.id
+                        )
+                    }
+                }
+            }),
+            prisma.orderFood.deleteMany({
+                where: {
+                    id: {
+                        in: fetchOrderFoodToDelete.map(
+                            orderFood => orderFood.id
+                        )
+                    }
+                }
+            }),
+            prisma.food.delete({
+                where: {
+                    id: foodToDelete.data.foodId
+                }
+            })
+        ]);
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    return res
+        .status(200)
+        .json({ message: 'Deleted food successfully.', food: deletedFood[2] });
+};

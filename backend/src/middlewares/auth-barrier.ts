@@ -20,7 +20,7 @@ export const barrier = (req: Request, res: Response, next: NextFunction) => {
         if (error instanceof Error) {
             const customError = error as customError;
             customError.statusCode = 500;
-            customError.message = 'Internal server error.';
+            customError.message = 'Internal server error or unauthenticated.';
             return next(customError);
         }
     }
