@@ -19,7 +19,8 @@ const adminRouter = express.Router();
 //      },
 // }
 adminRouter.post('/add-ingredient', addIngredient);
-// POST admin/add-quantity
+
+// PATCH admin/add-quantity
 // must send:
 // {
 //     "ingredient": {
@@ -27,8 +28,9 @@ adminRouter.post('/add-ingredient', addIngredient);
 //          "quantity": number (Integer)
 //      },
 // }
-adminRouter.post('/add-quantity', addQuantity);
-// POST admin/add-quantity
+adminRouter.patch('/add-quantity', addQuantity);
+
+// POST admin/add-food
 // must send:
 // {
 //     "food": {
@@ -43,6 +45,7 @@ adminRouter.post('/add-quantity', addQuantity);
 //      },
 // }
 adminRouter.post('/add-food', addFood);
+
 // POST admin/add-liquid
 // must send:
 // {
@@ -52,23 +55,26 @@ adminRouter.post('/add-food', addFood);
 //      },
 // }
 adminRouter.post('/add-liquid', addLiquid);
-// POST admin/delete-food
+
+// DELETE admin/delete-food
 // must send:
 // {
 //     "foodId": number (Integer)
 // }
-adminRouter.post('/delete-food', deleteFood);
-// POST admin/delete-ingredient
+adminRouter.delete('/delete-food', deleteFood);
+
+// DELETE admin/delete-ingredient
 // must send:
 // {
 //     "ingredientId": number (Integer)
 // }
-adminRouter.post('/delete-ingredient', deleteIngredient);
-// POST admin/delete-liquid
+adminRouter.delete('/delete-ingredient', deleteIngredient);
+
+// DELETE admin/delete-liquid
 // must send:
 // {
 //     "liquidId": number (Integer)
 // }
-adminRouter.post('/delete-liquid', deleteLiquid);
+adminRouter.delete('/delete-liquid', deleteLiquid);
 
 export default adminRouter;

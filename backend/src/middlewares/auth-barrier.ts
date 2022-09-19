@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import customError from '../../types/customError';
 import jwt from 'jsonwebtoken';
+import errorGenerator from '../utils/error-generator';
 
 export const barrier = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get('Authorization');
     if (!authHeader) {
         const error = new Error(
-            'Not authenticated. Please verify first.'
+            'Not authenticated or wrong API endpoint. Please verify first.'
         ) as customError;
         error.statusCode = 401;
         return next(error);
@@ -20,17 +21,18 @@ export const barrier = (req: Request, res: Response, next: NextFunction) => {
         if (error instanceof Error) {
             const customError = error as customError;
             customError.statusCode = 500;
-            customError.message = 'Internal server error or unauthenticated.';
+            customError.message =
+                'Internal server error or unauthenticated or wrong API endpoint.';
             return next(customError);
         }
     }
 
     if (!decodedToken) {
-        const error = new Error(
-            'Not authenticated. Please verify first.'
-        ) as customError;
-        error.statusCode = 401;
-        return next(error);
+        return errorGenerator(
+            'Not authenticated or wrong API endpoint. Please verify first.',
+            401,
+            next
+        );
     }
     req.body.verified = true;
     next();

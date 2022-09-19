@@ -27,7 +27,10 @@ app.use('/admin', barrier);
 //ADMIN - MIDDLEWARE
 app.use('/admin', adminRouter);
 
-//404 not found
+//404 not found MIDDLEWARE
+app.use('/', (req: Request, res: Response) => {
+    return res.status(404).json({ message: 'API endpoint not found.' });
+});
 
 //ERROR HANDLING MIDDLEWARE
 app.use((err: customError, req: Request, res: Response, next: NextFunction) => {
