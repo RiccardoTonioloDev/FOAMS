@@ -47,6 +47,7 @@ model Order {
   numberOfPeople Int
   description    String?       @db.Text
   status         String
+  totalPrice     Float         @default(0)
   OrderFood      OrderFood[]
   OrderLiquid    OrderLiquid[]
 }

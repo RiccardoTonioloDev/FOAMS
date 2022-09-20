@@ -189,6 +189,7 @@ export const createOrder = async (
         OrderLiquid?: {
             createMany: { data: { liquidId: number; quantity: number }[] };
         };
+        totalPrice?: number;
     } = {
         name: orderToAdd.data.order.name,
         surname: orderToAdd.data.order.surname,
@@ -218,7 +219,26 @@ export const createOrder = async (
     //     }
     // }
     //If foods are defined, then they are attached to the standard query.
+    // + finding their prices.
+    let foodsPrices;
     if (orderToAdd.data.order.foods) {
+        try {
+            foodsPrices = await prisma.food.findMany({
+                where: {
+                    id: {
+                        in: orderToAdd.data.order.foods.map(food => food.id)
+                    }
+                },
+                select: {
+                    price: true
+                }
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                return errorGenerator('Internal server error', 500, next);
+            }
+            return errorGenerator('Internal server error', 500, next);
+        }
         buildedQuery.OrderFood = {
             createMany: {
                 data: orderToAdd.data.order.foods.map(food => {
@@ -231,7 +251,25 @@ export const createOrder = async (
         };
     }
     //If liquids are defined, then they are attached to the standard query.
+    // + finding their prices.
+    let liquidsPrices;
     if (orderToAdd.data.order.liquids) {
+        try {
+            liquidsPrices = await prisma.liquid.findMany({
+                where: {
+                    id: {
+                        in: orderToAdd.data.order.liquids.map(
+                            liquid => liquid.id
+                        )
+                    }
+                }
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                return errorGenerator('Internal server error', 500, next);
+            }
+            return errorGenerator('Internal server error', 500, next);
+        }
         buildedQuery.OrderLiquid = {
             createMany: {
                 data: orderToAdd.data.order.liquids.map(liquid => {
@@ -243,6 +281,17 @@ export const createOrder = async (
             }
         };
     }
+    let totalPrice = 0;
+    if (foodsPrices && foodsPrices.length > 0) {
+        totalPrice += foodsPrices.reduce((prev, curr) => prev + curr.price, 0);
+    }
+    if (liquidsPrices && liquidsPrices.length > 0) {
+        totalPrice += liquidsPrices.reduce(
+            (prev, curr) => prev + curr.price,
+            0
+        );
+    }
+    buildedQuery.totalPrice = parseFloat(totalPrice.toFixed(2));
     let addedOrder;
     try {
         addedOrder = await prisma.order.create({
@@ -257,4 +306,86 @@ export const createOrder = async (
     return res
         .status(200)
         .json({ message: 'Order created successfully.', order: addedOrder });
+};
+
+export const fetchOrder = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const bodySchema = z.object({
+        order: z.object(
+            {
+                id: z
+                    .number({
+                        required_error: 'Please provide an id.',
+                        invalid_type_error: 'Please provide a valid id.'
+                    })
+                    .int('Please provide an integer for id.')
+            },
+            {
+                required_error: 'Please provide a order',
+                invalid_type_error: 'Please provide a valid order.'
+            }
+        )
+    });
+    const orderToFetch = bodySchema.safeParse(req.body);
+    if (!orderToFetch.success) {
+        return errorGenerator(orderToFetch.error.errors[0].message, 422, next);
+    }
+    let orderFetched;
+    try {
+        orderFetched = await prisma.order.findFirst({
+            where: {
+                id: orderToFetch.data.order.id
+            },
+            include: {
+                OrderFood: {
+                    include: {
+                        food: true
+                    }
+                },
+                OrderLiquid: {
+                    include: {
+                        liquid: true
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    if (!orderFetched) {
+        return errorGenerator('Order not found.', 404, next);
+    }
+    let orderedFoodReOrganized = orderFetched.OrderFood.map(orderFood => {
+        return {
+            orderFoodId: orderFood.id,
+            quantity: orderFood.quantity,
+            name: orderFood.food.name,
+            foodId: orderFood.food.id,
+            price: orderFood.food.price
+        };
+    });
+    let orderedLiquidReOrganized = orderFetched.OrderLiquid.map(orderLiquid => {
+        return {
+            orderFoodId: orderLiquid.id,
+            quantity: orderLiquid.quantity,
+            name: orderLiquid.liquid.name,
+            foodId: orderLiquid.liquid.id,
+            price: orderLiquid.liquid.price
+        };
+    });
+    const orderReOrganized = {
+        ...orderFetched,
+        OrderFood: orderedFoodReOrganized,
+        OrderLiquid: orderedLiquidReOrganized
+    };
+    return res.status(200).json({
+        message: 'Order fetched successfully.',
+        order: orderReOrganized
+    });
 };

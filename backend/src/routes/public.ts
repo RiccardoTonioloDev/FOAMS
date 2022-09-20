@@ -4,7 +4,8 @@ import {
     createOrder,
     fetchFood,
     fetchIngredients,
-    fetchLiquids
+    fetchLiquids,
+    fetchOrder
 } from '../controllers/public';
 const publicRouter = express.Router();
 
@@ -37,6 +38,17 @@ publicRouter.get('/liquids', fetchLiquids);
 //      },
 // }
 publicRouter.post('/create-order', createOrder);
+
+//Left as a POST for clarity sake (and because it's simplier to
+//add or change other params in case of necessity).
+//POST /fetch-order
+// must send:
+// {
+//     "order": {
+//          "id": number (Integer)
+//      },
+// }
+publicRouter.post('/fetch-order', fetchOrder);
 
 //IN CASE OF EMERGENCY (JUST TO CHECK OR FIX)
 // publicRouter.use('/', async (req: Request, res: Response) => {
