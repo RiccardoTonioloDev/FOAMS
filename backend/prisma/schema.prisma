@@ -13,6 +13,7 @@ model Food {
   id              Int              @id @default(autoincrement())
   name            String           @db.VarChar(50)
   price           Float
+  category        String           @default("") @db.VarChar(20)
   FoodIngredient  FoodIngredient[]
   OrderFoodLiquid OrderFood[]
 }
@@ -45,7 +46,7 @@ model Order {
   name           String        @db.VarChar(30)
   surname        String        @db.VarChar(30)
   numberOfPeople Int
-  description    String?       @db.Text
+  description    String        @default("") @db.Text
   status         String
   totalPrice     Float         @default(0)
   OrderFood      OrderFood[]
@@ -53,19 +54,21 @@ model Order {
 }
 
 model OrderFood {
-  id       Int   @id @default(autoincrement())
-  foodId   Int
-  quantity Int
-  food     Food  @relation(fields: [foodId], references: [id])
-  orderId  Int
-  order    Order @relation(fields: [orderId], references: [id])
+  id          Int    @id @default(autoincrement())
+  foodId      Int
+  quantity    Int
+  description String @default("") @db.Text
+  food        Food   @relation(fields: [foodId], references: [id])
+  orderId     Int
+  order       Order  @relation(fields: [orderId], references: [id])
 }
 
 model OrderLiquid {
-  id       Int    @id @default(autoincrement())
-  liquidId Int
-  quantity Int
-  liquid   Liquid @relation(fields: [liquidId], references: [id])
-  orderId  Int
-  order    Order  @relation(fields: [orderId], references: [id])
+  id          Int    @id @default(autoincrement())
+  liquidId    Int
+  quantity    Int
+  description String @default("") @db.Text
+  liquid      Liquid @relation(fields: [liquidId], references: [id])
+  orderId     Int
+  order       Order  @relation(fields: [orderId], references: [id])
 }

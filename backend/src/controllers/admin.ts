@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import z, { ZodError, ZodLazy } from 'zod';
 import prisma from '../database/prisma-db';
 import errorGenerator from '../utils/error-generator';
+import specialErrorGenerator from '../utils/special-error-generator';
 
 export const addIngredient = async (
     req: Request,
@@ -540,10 +541,25 @@ export const confirmOrder = async (
                                         ingredientId: true
                                     }
                                 },
-                                name: true
+                                name: true,
+                                price: true
                             }
                         },
+                        id: true,
+                        description: true,
                         quantity: true
+                    }
+                },
+                OrderLiquid: {
+                    select: {
+                        liquid: {
+                            select: {
+                                name: true,
+                                price: true
+                            }
+                        },
+                        quantity: true,
+                        description: true
                     }
                 }
             }
@@ -646,9 +662,14 @@ export const confirmOrder = async (
         } catch (error) {
             //Managing the special error where some ingredients are sub zero in quantity
             if (subzeroQuantityIngredients.length > 0) {
-                return res.status(500).json({
-                    ingredientsMissing: subzeroQuantityIngredients
-                });
+                return specialErrorGenerator(
+                    orderFetched,
+                    subzeroQuantityIngredients,
+                    res
+                );
+                // return res.status(500).json({
+                //     ingredientsMissing: subzeroQuantityIngredients
+                // });
             }
             if (error instanceof Error) {
                 return errorGenerator('Internal server error', 500, next);
