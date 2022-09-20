@@ -130,6 +130,9 @@ export const createOrder = async (
                                     invalid_type_error:
                                         'Please provide a valid quantity.'
                                 })
+                                .positive(
+                                    'Please provide a quantity greater than 0.'
+                                )
                                 .int('Please provide an integer for quantity.')
                         }),
                         {
@@ -342,7 +345,16 @@ export const fetchOrder = async (
             include: {
                 OrderFood: {
                     include: {
-                        food: true
+                        food: {
+                            include: {
+                                FoodIngredient: {
+                                    select: {
+                                        amount: true,
+                                        ingredientId: true
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 OrderLiquid: {
@@ -367,7 +379,8 @@ export const fetchOrder = async (
             quantity: orderFood.quantity,
             name: orderFood.food.name,
             foodId: orderFood.food.id,
-            price: orderFood.food.price
+            price: orderFood.food.price,
+            foodIngredients: orderFood.food.FoodIngredient
         };
     });
     let orderedLiquidReOrganized = orderFetched.OrderLiquid.map(orderLiquid => {

@@ -1,3 +1,4 @@
+import { FoodIngredient, Ingredient } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import z, { ZodError, ZodLazy } from 'zod';
 import prisma from '../database/prisma-db';
@@ -474,5 +475,151 @@ export const deleteLiquid = async (
     return res.status(200).json({
         message: 'Liquid deleted successfully.',
         liquid: deletedLiquid[1]
+    });
+};
+
+export const confirmOrder = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const bodySchema = z.object({
+        order: z.object(
+            {
+                id: z
+                    .number({
+                        required_error: 'Please provide an id.',
+                        invalid_type_error: 'Please provide a valid id.'
+                    })
+                    .int('Please provide an integer for id.')
+            },
+            {
+                required_error: 'Please provide a order',
+                invalid_type_error: 'Please provide a valid order.'
+            }
+        )
+    });
+    const orderToFetch = bodySchema.safeParse(req.body);
+    if (!orderToFetch.success) {
+        return errorGenerator(orderToFetch.error.errors[0].message, 422, next);
+    }
+    let orderFetched;
+    //FETCHING REQUIRED INFORMATION TO LATER UPDATE (EVENTUALLY) INGREDIENTS QUANTITIES
+    try {
+        orderFetched = await prisma.order.findFirst({
+            where: {
+                id: orderToFetch.data.order.id
+            },
+            select: {
+                OrderFood: {
+                    select: {
+                        food: {
+                            select: {
+                                FoodIngredient: {
+                                    select: {
+                                        amount: true,
+                                        ingredientId: true
+                                    }
+                                },
+                                name: true
+                            }
+                        },
+                        quantity: true
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    if (!orderFetched) {
+        return errorGenerator('Order not found.', 404, next);
+    }
+
+    //CLEANING DATA
+    let infoForQueries: { amount: number; id: number }[] = [];
+    //Pass through every food
+    orderFetched.OrderFood.forEach(orderFood => {
+        //Pass through every ingredient
+        orderFood.food.FoodIngredient.forEach(foodIngredient => {
+            //See if current foodIngredient is infoQueries
+            const foundIndex = infoForQueries.findIndex(
+                info => info.id === foodIngredient.ingredientId
+            );
+            //If it is in infoQueries
+            if (foundIndex !== -1) {
+                //Increment the amount by amount of ingredient to subtract * quantity of food in the order
+                infoForQueries[foundIndex].amount +=
+                    foodIngredient.amount * orderFood.quantity;
+            } else {
+                //Create a new cleaned info, with new ingredient id, and a new amount derived in the same
+                //way as above.
+                infoForQueries.push({
+                    id: foodIngredient.ingredientId,
+                    amount: foodIngredient.amount * orderFood.quantity
+                });
+            }
+        });
+    });
+    //Prepared query objects for prisma to not slow down the transaction query unnecessarely, after
+    let preparedQueriesForUpdate = infoForQueries.map(info => {
+        return {
+            where: {
+                id: info.id
+            },
+            data: {
+                quantity: {
+                    decrement: info.amount
+                }
+            }
+        };
+    });
+    let subzeroQuantityIngredients: Ingredient[] = [];
+    try {
+        const transaction = await prisma.$transaction(async tx => {
+            //Updating every ingredient decrementing the quantity by the amount calculated before
+            preparedQueriesForUpdate.forEach(async query => {
+                await tx.ingredient.update(query);
+            });
+            //Fetching the ingredients that have a quantity less than 0
+            subzeroQuantityIngredients = await tx.ingredient.findMany({
+                where: {
+                    quantity: {
+                        lt: 0
+                    }
+                }
+            });
+            //If the number of ingredients with quantity less than 0 is more than 0, ROLLBACK
+            if (subzeroQuantityIngredients.length > 0) {
+                throw new Error('One or multiple ingredients missing.');
+            }
+            //If arrived here, everything is ok, and confirm order.
+            await tx.order.update({
+                where: {
+                    id: orderToFetch.data.order.id
+                },
+                data: {
+                    status: 'CONFIRMED'
+                }
+            });
+        });
+    } catch (error) {
+        //Managing the special error where some ingredients are sub zero in quantity
+        if (subzeroQuantityIngredients.length > 0) {
+            return res.status(500).json({
+                ingredientsMissing: subzeroQuantityIngredients
+            });
+        }
+        if (error instanceof Error) {
+            return errorGenerator('Internal server error', 500, next);
+        }
+        return errorGenerator('Internal server error', 500, next);
+    }
+    return res.status(200).json({
+        message: 'Order confirmed successfully.',
+        orderId: orderToFetch.data.order.id
     });
 };

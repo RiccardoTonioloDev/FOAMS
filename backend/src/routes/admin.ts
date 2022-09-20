@@ -6,7 +6,8 @@ import {
     addLiquid,
     deleteFood,
     deleteIngredient,
-    deleteLiquid
+    deleteLiquid,
+    confirmOrder
 } from '../controllers/admin';
 const adminRouter = express.Router();
 
@@ -76,5 +77,15 @@ adminRouter.delete('/delete-ingredient', deleteIngredient);
 //     "liquidId": number (Integer)
 // }
 adminRouter.delete('/delete-liquid', deleteLiquid);
+
+//POST admin/confirm-order
+// must send:
+// {
+//     "order": {
+//          "id": number (Integer)
+//      },
+// }
+
+adminRouter.patch('/confirm-order', confirmOrder);
 
 export default adminRouter;
