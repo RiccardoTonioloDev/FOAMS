@@ -83,9 +83,9 @@ adminRouter.delete('/delete-liquid', deleteLiquid);
 // {
 //     "order": {
 //          "id": number (Integer)
+//      "ingredientsToExclude": number[] (Integer) (optional) (if exists, at least 1 element in array)
 //      },
 // }
-
 adminRouter.patch('/confirm-order', confirmOrder);
 
 export default adminRouter;

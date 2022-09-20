@@ -491,7 +491,26 @@ export const confirmOrder = async (
                         required_error: 'Please provide an id.',
                         invalid_type_error: 'Please provide a valid id.'
                     })
-                    .int('Please provide an integer for id.')
+                    .int('Please provide an integer for id.'),
+                ingredientsToExclude: z
+                    .array(
+                        z
+                            .number({
+                                invalid_type_error:
+                                    'Please provide a valid id.',
+                                required_error: 'Please provide an id.'
+                            })
+                            .int('Please provide an integer for id'),
+                        {
+                            invalid_type_error:
+                                'Please provide a list of ids to exclude.'
+                        }
+                    )
+                    .min(
+                        1,
+                        'Please provide at least one id, if using ingredientsToExclude.'
+                    )
+                    .optional()
             },
             {
                 required_error: 'Please provide a order',
@@ -541,78 +560,114 @@ export const confirmOrder = async (
 
     //CLEANING DATA
     let infoForQueries: { amount: number; id: number }[] = [];
-    //Pass through every food
-    orderFetched.OrderFood.forEach(orderFood => {
-        //Pass through every ingredient
-        orderFood.food.FoodIngredient.forEach(foodIngredient => {
-            //See if current foodIngredient is infoQueries
-            const foundIndex = infoForQueries.findIndex(
-                info => info.id === foodIngredient.ingredientId
-            );
-            //If it is in infoQueries
-            if (foundIndex !== -1) {
-                //Increment the amount by amount of ingredient to subtract * quantity of food in the order
-                infoForQueries[foundIndex].amount +=
-                    foodIngredient.amount * orderFood.quantity;
-            } else {
-                //Create a new cleaned info, with new ingredient id, and a new amount derived in the same
-                //way as above.
-                infoForQueries.push({
-                    id: foodIngredient.ingredientId,
-                    amount: foodIngredient.amount * orderFood.quantity
-                });
-            }
-        });
-    });
-    //Prepared query objects for prisma to not slow down the transaction query unnecessarely, after
-    let preparedQueriesForUpdate = infoForQueries.map(info => {
-        return {
-            where: {
-                id: info.id
-            },
-            data: {
-                quantity: {
-                    decrement: info.amount
-                }
-            }
-        };
-    });
-    let subzeroQuantityIngredients: Ingredient[] = [];
-    try {
-        const transaction = await prisma.$transaction(async tx => {
-            //Updating every ingredient decrementing the quantity by the amount calculated before
-            preparedQueriesForUpdate.forEach(async query => {
-                await tx.ingredient.update(query);
-            });
-            //Fetching the ingredients that have a quantity less than 0
-            subzeroQuantityIngredients = await tx.ingredient.findMany({
-                where: {
-                    quantity: {
-                        lt: 0
+    if (orderFetched.OrderFood.length !== 0) {
+        //Pass through every food
+        orderFetched.OrderFood.forEach(orderFood => {
+            //Pass through every ingredient
+            orderFood.food.FoodIngredient.forEach(foodIngredient => {
+                //See if current foodIngredient is infoQueries
+                const foundIndex = infoForQueries.findIndex(
+                    info => info.id === foodIngredient.ingredientId
+                );
+                //If the exclude list exist
+                if (orderToFetch.data.order.ingredientsToExclude) {
+                    //If the ingredient is in the toExclude list, it won't be added to infoQueries
+                    if (
+                        orderToFetch.data.order.ingredientsToExclude.findIndex(
+                            ingrTE => ingrTE === foodIngredient.ingredientId
+                        ) === -1
+                    ) {
+                        //If it is in infoQueries
+                        if (foundIndex !== -1) {
+                            //Increment the amount by amount of ingredient to subtract * quantity of food in the order
+                            infoForQueries[foundIndex].amount +=
+                                foodIngredient.amount * orderFood.quantity;
+                        } else {
+                            //Create a new cleaned info, with new ingredient id, and a new amount derived in the same
+                            //way as above.
+                            infoForQueries.push({
+                                id: foodIngredient.ingredientId,
+                                amount:
+                                    foodIngredient.amount * orderFood.quantity
+                            });
+                        }
+                    }
+                } else {
+                    //If it is in infoQueries (here the toExclude list doesn't exist)
+                    if (foundIndex !== -1) {
+                        //Increment the amount by amount of ingredient to subtract * quantity of food in the order
+                        infoForQueries[foundIndex].amount +=
+                            foodIngredient.amount * orderFood.quantity;
+                    } else {
+                        //Create a new cleaned info, with new ingredient id, and a new amount derived in the same
+                        //way as above.
+                        infoForQueries.push({
+                            id: foodIngredient.ingredientId,
+                            amount: foodIngredient.amount * orderFood.quantity
+                        });
                     }
                 }
             });
-            //If the number of ingredients with quantity less than 0 is more than 0, ROLLBACK
-            if (subzeroQuantityIngredients.length > 0) {
-                throw new Error('One or multiple ingredients missing.');
-            }
-            //If arrived here, everything is ok, and confirm order.
-            await tx.order.update({
+        });
+        //Prepared query objects for prisma to not slow down the transaction query unnecessarely, after
+        let preparedQueriesForUpdate = infoForQueries.map(info => {
+            return {
                 where: {
-                    id: orderToFetch.data.order.id
+                    id: info.id
                 },
                 data: {
-                    status: 'CONFIRMED'
+                    quantity: {
+                        decrement: info.amount
+                    }
                 }
+            };
+        });
+        let subzeroQuantityIngredients: Ingredient[] = [];
+        try {
+            const transaction = await prisma.$transaction(async tx => {
+                //Updating every ingredient decrementing the quantity by the amount calculated before
+                preparedQueriesForUpdate.forEach(async query => {
+                    await tx.ingredient.update(query);
+                });
+                //Fetching the ingredients that have a quantity less than 0
+                subzeroQuantityIngredients = await tx.ingredient.findMany({
+                    where: {
+                        quantity: {
+                            lt: 0
+                        }
+                    }
+                });
+                //If the number of ingredients with quantity less than 0 is more than 0, ROLLBACK
+                if (subzeroQuantityIngredients.length > 0) {
+                    throw new Error('One or multiple ingredients missing.');
+                }
+                //If arrived here, everything is ok
             });
+        } catch (error) {
+            //Managing the special error where some ingredients are sub zero in quantity
+            if (subzeroQuantityIngredients.length > 0) {
+                return res.status(500).json({
+                    ingredientsMissing: subzeroQuantityIngredients
+                });
+            }
+            if (error instanceof Error) {
+                return errorGenerator('Internal server error', 500, next);
+            }
+            return errorGenerator('Internal server error', 500, next);
+        }
+    }
+    //Regardless of the length of the array of Foods, if it arrives here, everything should be fine
+    //And so the order get confirmed.
+    try {
+        await prisma.order.update({
+            where: {
+                id: orderToFetch.data.order.id
+            },
+            data: {
+                status: 'CONFIRMED'
+            }
         });
     } catch (error) {
-        //Managing the special error where some ingredients are sub zero in quantity
-        if (subzeroQuantityIngredients.length > 0) {
-            return res.status(500).json({
-                ingredientsMissing: subzeroQuantityIngredients
-            });
-        }
         if (error instanceof Error) {
             return errorGenerator('Internal server error', 500, next);
         }
