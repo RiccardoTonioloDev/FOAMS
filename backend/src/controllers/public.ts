@@ -9,6 +9,7 @@ export const fetchFood = async (
     next: NextFunction
 ) => {
     let foods;
+    let ingredients: { id: number }[];
     try {
         foods = await prisma.food.findMany({
             select: {
@@ -27,13 +28,49 @@ export const fetchFood = async (
                 }
             }
         });
+        ingredients = await prisma.ingredient.findMany({
+            where: {
+                quantity: {
+                    gte: 10
+                }
+            },
+            select: {
+                id: true
+            }
+        });
     } catch (error) {
         if (error instanceof Error) {
             return errorGenerator('Internal server error', 500, next);
         }
         return errorGenerator('Internal server error', 500, next);
     }
-    return res.status(200).json({ foods: foods });
+    const refinedFood: {
+        id: number;
+        name: string;
+        FoodIngredient: {
+            amount: number;
+            ingredient: {
+                id: number;
+                name: string;
+            };
+        }[];
+    }[] = [];
+    foods.forEach(food => {
+        let compromisedFood = false;
+        food.FoodIngredient.forEach(foodIngredient => {
+            if (
+                ingredients.findIndex(
+                    ingredient => ingredient.id === foodIngredient.ingredient.id
+                ) === -1
+            ) {
+                compromisedFood = true;
+            }
+        });
+        if (!compromisedFood) {
+            refinedFood.push(food);
+        }
+    });
+    return res.status(200).json({ foods: refinedFood });
 };
 
 export const fetchIngredients = async (
@@ -133,7 +170,13 @@ export const createOrder = async (
                                 .positive(
                                     'Please provide a quantity greater than 0.'
                                 )
-                                .int('Please provide an integer for quantity.')
+                                .int('Please provide an integer for quantity.'),
+                            description: z
+                                .string({
+                                    invalid_type_error:
+                                        'Please provide a valid description'
+                                })
+                                .optional()
                         }),
                         {
                             invalid_type_error: 'Please provide valid foods.',
@@ -159,7 +202,13 @@ export const createOrder = async (
                                     invalid_type_error:
                                         'Please provide a valid quantity.'
                                 })
-                                .int('Please provide an integer for quantity.')
+                                .int('Please provide an integer for quantity.'),
+                            description: z
+                                .string({
+                                    invalid_type_error:
+                                        'Please provide a valid description'
+                                })
+                                .optional()
                         }),
                         {
                             invalid_type_error: 'Please provide valid liquids.',
@@ -247,7 +296,8 @@ export const createOrder = async (
                 data: orderToAdd.data.order.foods.map(food => {
                     return {
                         foodId: food.id,
-                        quantity: food.quantity
+                        quantity: food.quantity,
+                        description: food.description || ''
                     };
                 })
             }
@@ -278,7 +328,8 @@ export const createOrder = async (
                 data: orderToAdd.data.order.liquids.map(liquid => {
                     return {
                         liquidId: liquid.id,
-                        quantity: liquid.quantity
+                        quantity: liquid.quantity,
+                        description: liquid.description || ''
                     };
                 })
             }
@@ -380,15 +431,17 @@ export const fetchOrder = async (
             name: orderFood.food.name,
             foodId: orderFood.food.id,
             price: orderFood.food.price,
+            description: orderFood.description,
             foodIngredients: orderFood.food.FoodIngredient
         };
     });
     let orderedLiquidReOrganized = orderFetched.OrderLiquid.map(orderLiquid => {
         return {
-            orderFoodId: orderLiquid.id,
+            orderLiquidId: orderLiquid.id,
             quantity: orderLiquid.quantity,
             name: orderLiquid.liquid.name,
-            foodId: orderLiquid.liquid.id,
+            liquidId: orderLiquid.liquid.id,
+            description: orderLiquid.description,
             price: orderLiquid.liquid.price
         };
     });

@@ -11,10 +11,13 @@ const publicRouter = express.Router();
 
 // GET /foods
 publicRouter.get('/foods', fetchFood);
+
 //GET /ingredients
 publicRouter.get('/ingredients', fetchIngredients);
+
 //GET /liquids
 publicRouter.get('/liquids', fetchLiquids);
+
 //POST /create-order
 // must send:
 // {
@@ -27,12 +30,14 @@ publicRouter.get('/liquids', fetchLiquids);
 //              {
 //                  "id": number (Integer)
 //                  "amount": number (Integer)
+//                  "description": string (optional)
 //              }
 //          ] (optional) (non empty)
 //          "liquids": [
 //              {
 //                  "id": number (Integer)
 //                  "amount": number (Integer)
+//                  "description": string (optional)
 //              }
 //          ] (optional) (non empty)
 //      },
