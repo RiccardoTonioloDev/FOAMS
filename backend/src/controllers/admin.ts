@@ -136,6 +136,32 @@ export const addFood = async (
                     required_error: 'Please provide a price.',
                     invalid_type_error: 'Please provide a valid price.'
                 }),
+                category: z.union(
+                    [
+                        z.literal('1', {
+                            invalid_type_error:
+                                'Please provide a valid category'
+                        }),
+                        z.literal('2', {
+                            invalid_type_error:
+                                'Please provide a valid category'
+                        }),
+                        z.literal('3', {
+                            invalid_type_error:
+                                'Please provide a valid category'
+                        })
+                    ],
+                    {
+                        invalid_type_error:
+                            "Please provide a valid category between '1', '2', '3'.",
+                        required_error:
+                            "Please provide a category between '1', '2', '3'."
+                    }
+                ),
+                // category: z.string({
+                //     required_error: 'Please provide a category.',
+                //     invalid_type_error: 'Please provide a valid category.'
+                // }),
                 ingredients: z
                     .array(
                         z.object(
@@ -194,6 +220,7 @@ export const addFood = async (
             data: {
                 name: foodToAdd.data.food.name,
                 price: foodToAdd.data.food.price,
+                category: foodToAdd.data.food.category,
                 FoodIngredient: {
                     createMany: {
                         data: createManyFoodIngredientData
@@ -662,10 +689,11 @@ export const confirmOrder = async (
         } catch (error) {
             //Managing the special error where some ingredients are sub zero in quantity
             if (subzeroQuantityIngredients.length > 0) {
-                return specialErrorGenerator(
+                return await specialErrorGenerator(
                     orderFetched,
                     subzeroQuantityIngredients,
-                    res
+                    res,
+                    next
                 );
                 // return res.status(500).json({
                 //     ingredientsMissing: subzeroQuantityIngredients
