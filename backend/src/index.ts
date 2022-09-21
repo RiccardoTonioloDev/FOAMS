@@ -3,17 +3,21 @@ require('dotenv').config();
 
 //LIBRARIES
 import express, { NextFunction, Request, Response } from 'express';
+import compression from 'compression';
 //ROUTERS
 import authRouter from './routes/auth';
 import { barrier } from './middlewares/auth-barrier';
 import customError from '../types/customError';
 import adminRouter from './routes/admin';
 import publicRouter from './routes/public';
+import cors from 'cors';
 
 const app = express();
 
 //LIB - MIDDLEWARE
 app.use(bodyParser.json());
+app.use(cors());
+app.use(compression());
 
 //PUBLIC - MIDDLEWARE
 app.use(publicRouter);
