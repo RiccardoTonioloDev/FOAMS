@@ -37,6 +37,7 @@ adminRouter.patch('/add-quantity', addQuantity);
 //     "food": {
 //          "name": string
 //          "price": number
+//          "category": "1" | "2" | "3" (String literal)
 //          "ingredients": [
 //              {
 //                  "id": number (Integer)
@@ -83,7 +84,7 @@ adminRouter.delete('/delete-liquid', deleteLiquid);
 // {
 //     "order": {
 //          "id": number (Integer)
-//      "ingredientsToExclude": number[] (Integer) (optional) (if exists, at least 1 element in array)
+//          "ingredientsToExclude": number[] (Integer) (optional) (if exists, at least 1 element in array)
 //      },
 // }
 adminRouter.patch('/confirm-order', confirmOrder);
