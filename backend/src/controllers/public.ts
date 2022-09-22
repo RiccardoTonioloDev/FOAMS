@@ -15,6 +15,8 @@ export const fetchFood = async (
             select: {
                 id: true,
                 name: true,
+                price: true,
+                category: true,
                 FoodIngredient: {
                     select: {
                         amount: true,
@@ -47,6 +49,8 @@ export const fetchFood = async (
     const refinedFood: {
         id: number;
         name: string;
+        price: number;
+        category: string;
         FoodIngredient: {
             amount: number;
             ingredient: {
