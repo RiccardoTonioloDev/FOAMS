@@ -1,0 +1,15 @@
+.orderItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.itemName {
+    font-weight:800 ;
+}
+.inputsItem {
+    display: flex;
+    align-items: center;
+}
+.inputStyle {
+    width: 110px;
+}

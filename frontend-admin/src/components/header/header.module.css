@@ -1,0 +1,14 @@
+.activeNavLink {
+    color: black;
+    border-bottom: 1 px solid black;
+}
+
+.navLink {
+    color: grey;
+    text-decoration: none;
+}
+
+.navLinkBrand {
+    color: black;
+    text-decoration: none;
+}
