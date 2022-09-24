@@ -12,6 +12,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store/index';
 import { orderActions } from '../../store/order-slice';
+import { Food } from '../../types/food';
+import Item from '../../types/item';
+import { Liquid } from '../../types/liquids';
 
 type orderFormProps = {
     children: ReactNode;
@@ -28,11 +31,30 @@ const OrderForm = (props: orderFormProps) => {
     }> => {
         let result;
         try {
+            const orderToSend: {
+                name: string;
+                surname: string;
+                numberOfPeople: number;
+                description: string;
+                foods?: Item[];
+                liquids?: Item[];
+            } = {
+                name: order.name,
+                surname: order.surname,
+                description: order.description,
+                numberOfPeople: order.numberOfPeople,
+            };
+            if (order.foods.length > 0) {
+                orderToSend.foods = order.foods;
+            }
+            if (order.liquids.length > 0) {
+                orderToSend.liquids = order.liquids;
+            }
             result = await fetch(
                 import.meta.env.VITE_BACKEND_URL + '/create-order',
                 {
                     method: 'POST',
-                    body: JSON.stringify({ order: order }),
+                    body: JSON.stringify({ order: orderToSend }),
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -55,31 +77,48 @@ const OrderForm = (props: orderFormProps) => {
     };
     const onSubmitHandler = async (event: FormEvent) => {
         event.preventDefault();
-        const isNameNotBlank = order.name.length > 0;
-        const isSurnameNotBlank = order.surname.length > 0;
-        const isNumberOfPeopleGTEZero = order.numberOfPeople >= 0;
-        const atLeastOneFood = order.foods.length > 0;
-        const atLeastOneLiquid = order.liquids.length > 0;
-        if (
-            isNameNotBlank &&
-            isSurnameNotBlank &&
-            isNumberOfPeopleGTEZero &&
-            (atLeastOneFood || atLeastOneLiquid)
-        ) {
-            setIsLoading(true);
-            setIsError({ status: false, message: '' });
-            const dataFetched = await sendOrder();
-            setIsLoading(false);
-            if (!dataFetched.order) {
-                setIsError({
-                    status: true,
-                    message: 'Ordine fallito: ' + dataFetched.message,
-                });
-                return;
-            }
-            dispatch(orderActions.resetOrder(null));
-            navigate('/confirm/' + dataFetched.order.id, { replace: true });
+        if (order.name.length < 0) {
+            setIsError({
+                status: true,
+                message: "Imposta un nome per l'ordine. Poi ri-clicca.",
+            });
+            return;
         }
+        if (order.surname.length < 0) {
+            setIsError({
+                status: true,
+                message: "Imposta un cognome per l'ordine. Poi ri-clicca.",
+            });
+            return;
+        }
+        if (order.numberOfPeople < 0) {
+            setIsError({
+                status: true,
+                message: 'Imposta un numero di persone >=0. Poi ri-clicca.',
+            });
+            return;
+        }
+        if (order.foods.length === 0 && order.liquids.length === 0) {
+            setIsError({
+                status: true,
+                message:
+                    'Seleziona almeno una bevanda o un cibo. Poi ri-clicca.',
+            });
+            return;
+        }
+        setIsLoading(true);
+        setIsError({ status: false, message: '' });
+        const dataFetched = await sendOrder();
+        setIsLoading(false);
+        if (!dataFetched.order) {
+            setIsError({
+                status: true,
+                message: 'Ordine fallito: ' + dataFetched.message,
+            });
+            return;
+        }
+        dispatch(orderActions.resetOrder(null));
+        navigate('/confirm/' + dataFetched.order.id, { replace: true });
     };
     const onChangeNameHandler = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -163,7 +202,12 @@ const OrderForm = (props: orderFormProps) => {
             )}
             {props.children}
             <div className="d-grid gap-2 mb-5">
-                <Button type="submit" variant="primary" size="lg">
+                <Button
+                    type="submit"
+                    variant={isError.status ? 'warning' : 'primary'}
+                    size="lg"
+                    disabled={isLoading}
+                >
                     {isLoading && !isError.status && (
                         <Spinner
                             as="span"

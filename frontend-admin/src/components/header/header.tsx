@@ -30,7 +30,7 @@ const Header = (props: HeaderProps) => {
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="me-auto">
-                                <Nav.Link eventKey={1}>
+                                <Nav.Link as="div" eventKey={1}>
                                     <NavLink
                                         to="/order"
                                         className={(navData) =>
@@ -42,7 +42,7 @@ const Header = (props: HeaderProps) => {
                                         Crea un ordine
                                     </NavLink>
                                 </Nav.Link>
-                                <Nav.Link eventKey={2}>
+                                <Nav.Link as="div" eventKey={2}>
                                     <NavLink
                                         to="/confirm"
                                         className={(navData) =>
@@ -54,7 +54,7 @@ const Header = (props: HeaderProps) => {
                                         Conferma ordine
                                     </NavLink>
                                 </Nav.Link>
-                                <Nav.Link eventKey={3}>
+                                <Nav.Link as="div" eventKey={3}>
                                     <NavLink
                                         to="/stampa"
                                         className={(navData) =>
