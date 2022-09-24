@@ -10,20 +10,27 @@ const Header = (props: HeaderProps) => {
     return (
         <>
             <header>
-                <Navbar bg="light" expand="lg">
+                <Navbar collapseOnSelect bg="light" expand="lg">
                     <Container>
                         <NavbarBrand>
                             <NavLink
                                 to="/order"
                                 className={classes.navLinkBrand}
                             >
+                                <img
+                                    alt=""
+                                    src="/logoDuomo.png"
+                                    width="30"
+                                    height="30"
+                                    className="d-inline-block align-top"
+                                />
                                 Food Ordering
                             </NavLink>
                         </NavbarBrand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="me-auto">
-                                <Nav.Link>
+                                <Nav.Link eventKey={1}>
                                     <NavLink
                                         to="/order"
                                         className={(navData) =>
@@ -32,10 +39,10 @@ const Header = (props: HeaderProps) => {
                                                 : classes.navLink
                                         }
                                     >
-                                        Order
+                                        Crea un ordine
                                     </NavLink>
                                 </Nav.Link>
-                                <Nav.Link>
+                                <Nav.Link eventKey={2}>
                                     <NavLink
                                         to="/confirm"
                                         className={(navData) =>
@@ -44,10 +51,10 @@ const Header = (props: HeaderProps) => {
                                                 : classes.navLink
                                         }
                                     >
-                                        Confirm
+                                        Conferma ordine
                                     </NavLink>
                                 </Nav.Link>
-                                <Nav.Link>
+                                <Nav.Link eventKey={3}>
                                     <NavLink
                                         to="/stampa"
                                         className={(navData) =>
@@ -56,7 +63,7 @@ const Header = (props: HeaderProps) => {
                                                 : classes.navLink
                                         }
                                     >
-                                        Stampa
+                                        Stampa ordine
                                     </NavLink>
                                 </Nav.Link>
                             </Nav>
