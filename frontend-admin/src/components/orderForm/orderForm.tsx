@@ -75,7 +75,9 @@ const OrderForm = (props: orderFormProps) => {
                     status: true,
                     message: 'Ordine fallito: ' + dataFetched.message,
                 });
+                return;
             }
+            dispatch(orderActions.resetOrder(null));
             navigate('/confirm/' + dataFetched.order.id, { replace: true });
         }
     };
@@ -107,6 +109,7 @@ const OrderForm = (props: orderFormProps) => {
                     onChange={onChangeNameHandler}
                     required
                     type="text"
+                    value={order.name}
                     placeholder="Nome"
                 />
                 <FormControl.Feedback type="invalid">
@@ -120,6 +123,7 @@ const OrderForm = (props: orderFormProps) => {
                     onChange={onChangeSurnameHandler}
                     required
                     type="text"
+                    value={order.surname}
                     placeholder="Cognome"
                 />
                 <FormControl.Feedback type="invalid">
@@ -148,6 +152,7 @@ const OrderForm = (props: orderFormProps) => {
                 <FormControl
                     as="textarea"
                     rows={2}
+                    value={order.description}
                     onChange={onChangeDescriptionHandler}
                     placeholder="Descrivere eventuali dettagli"
                 />

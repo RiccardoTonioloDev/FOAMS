@@ -5,61 +5,61 @@ import { Liquid } from '../../types/liquids';
 import OrderForm from '../orderForm/orderForm';
 import OrderList from '../orderList/order-list';
 
-const DUMMY_FOODS = [
-    {
-        id: 1,
-        name: 'Insalata',
-        category: '3',
-        price: 3.99,
-    },
-    {
-        id: 2,
-        name: 'Bigoli al ragu',
-        category: '1',
-        price: 10.99,
-    },
-    {
-        id: 3,
-        name: 'Pollo ai ferri',
-        category: '2',
-        price: 20.99,
-    },
-    {
-        id: 4,
-        name: 'Grigliata Mista',
-        category: '2',
-        price: 25.99,
-    },
-    {
-        id: 6,
-        name: 'Pasta con i piselli',
-        category: '1',
-        price: 12.99,
-    },
-    {
-        id: 7,
-        name: 'Nome ultra iper mega super giga lungo',
-        category: '3',
-        price: 3.99,
-    },
-];
-const DUMMY_LIQUIDS = [
-    {
-        id: 1,
-        name: 'Coca-Cola',
-        price: 3.99,
-    },
-    {
-        id: 2,
-        name: 'Fanta',
-        price: 10.99,
-    },
-    {
-        id: 3,
-        name: 'Sprite',
-        price: 20.99,
-    },
-];
+// const DUMMY_FOODS = [
+//     {
+//         id: 1,
+//         name: 'Insalata',
+//         category: '3',
+//         price: 3.99,
+//     },
+//     {
+//         id: 2,
+//         name: 'Bigoli al ragu',
+//         category: '1',
+//         price: 10.99,
+//     },
+//     {
+//         id: 3,
+//         name: 'Pollo ai ferri',
+//         category: '2',
+//         price: 20.99,
+//     },
+//     {
+//         id: 4,
+//         name: 'Grigliata Mista',
+//         category: '2',
+//         price: 25.99,
+//     },
+//     {
+//         id: 6,
+//         name: 'Pasta con i piselli',
+//         category: '1',
+//         price: 12.99,
+//     },
+//     {
+//         id: 7,
+//         name: 'Nome ultra iper mega super giga lungo',
+//         category: '3',
+//         price: 3.99,
+//     },
+// ];
+// const DUMMY_LIQUIDS = [
+//     {
+//         id: 1,
+//         name: 'Coca-Cola',
+//         price: 3.99,
+//     },
+//     {
+//         id: 2,
+//         name: 'Fanta',
+//         price: 10.99,
+//     },
+//     {
+//         id: 3,
+//         name: 'Sprite',
+//         price: 20.99,
+//     },
+// ];
 const Order = () => {
     const [foods, setFoods] = useState<Food[]>([]);
     const [liquids, setLiquids] = useState<Liquid[]>([]);
@@ -88,11 +88,14 @@ const Order = () => {
             setLiquids(responseData.liquids);
             // setLiquids(DUMMY_LIQUIDS);
         };
-        try {
+        const fetchEverything = async () => {
             setIsLoading(true);
-            fetchFood();
-            fetchLiquids();
+            await fetchFood();
+            await fetchLiquids();
             setIsLoading(false);
+        };
+        try {
+            fetchEverything();
         } catch (error) {
             setIsError(true);
         }
@@ -102,7 +105,10 @@ const Order = () => {
         <>
             <h2>Crea il tuo ordine!</h2>
             {isLoading && !isError && (
-                <Spinner animation="border" role="status" />
+                <>
+                    <Spinner animation="border" role="status" />
+                    <p>Caricamento di cibi e bevande...</p>
+                </>
             )}
             {!isLoading && !isError && (
                 <OrderForm>

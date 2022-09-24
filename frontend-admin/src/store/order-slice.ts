@@ -123,6 +123,14 @@ const orderSlice = createSlice({
         setNumberOfPeople(state, action) {
             state.numberOfPeople = +action.payload;
         },
+        resetOrder(state, action) {
+            state.foods = [];
+            state.liquids = [];
+            state.description = '';
+            state.name = '';
+            state.surname = '';
+            state.numberOfPeople = 0;
+        },
     },
 });
 
