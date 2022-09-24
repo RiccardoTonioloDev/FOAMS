@@ -61,7 +61,7 @@ const OrderList = (props: OrderListProps) => {
                 <OrderLiquidMiniList
                     onAdd={onAddLiquidHandler}
                     onDecrease={onDecreaseLiquidHandler}
-                    name="Liquids"
+                    name="Bevande"
                     liquids={props.liquids}
                 />
             )}

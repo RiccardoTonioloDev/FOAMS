@@ -1,13 +1,27 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { ActionFromReducer, createSlice } from '@reduxjs/toolkit';
 import { Food } from '../types/food';
 import { Liquid } from '../types/liquids';
-type orderItem = { id: number; name: string; price: number; quantity: number };
+type orderItem = {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    description?: string;
+};
 const initialState: {
     foods: orderItem[];
     liquids: orderItem[];
+    name: string;
+    surname: string;
+    numberOfPeople: number;
+    description: string;
 } = {
     foods: [],
     liquids: [],
+    name: '',
+    surname: '',
+    numberOfPeople: 0,
+    description: '',
 };
 
 const orderSlice = createSlice({
@@ -29,6 +43,25 @@ const orderSlice = createSlice({
                 return;
             }
             existingItem.quantity++;
+        },
+        setFoodDescription(
+            state,
+            action: { payload: { id: number; description: string } }
+        ) {
+            const foodId = action.payload.id;
+            const existingItem = state.foods.find((food) => food.id === foodId);
+            if (existingItem) {
+                existingItem.description = action.payload.description;
+            }
+        },
+        setLiquidDescription(state, action) {
+            const liquidId = action.payload.id;
+            const existingItem = state.liquids.find(
+                (liquid) => liquid.id === liquidId
+            );
+            if (existingItem) {
+                existingItem.description = action.payload.description;
+            }
         },
         decreaseFoodFromOrder(state, action) {
             const idToDecrease = action.payload.id;
@@ -77,6 +110,18 @@ const orderSlice = createSlice({
                 return;
             }
             existingItem.quantity--;
+        },
+        setName(state, action) {
+            state.name = action.payload;
+        },
+        setSurname(state, action) {
+            state.surname = action.payload;
+        },
+        setDescription(state, action) {
+            state.description = action.payload;
+        },
+        setNumberOfPeople(state, action) {
+            state.numberOfPeople = +action.payload;
         },
     },
 });
