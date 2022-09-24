@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Spinner } from 'react-bootstrap';
+import { Alert, Spinner } from 'react-bootstrap';
 import { Food } from '../../types/food';
 import { Liquid } from '../../types/liquids';
+import OrderForm from '../orderForm/orderForm';
 import OrderList from '../orderList/order-list';
 
 const DUMMY_FOODS = [
@@ -66,45 +67,56 @@ const Order = () => {
     const [isError, setIsError] = useState(false);
     useEffect(() => {
         const fetchFood = async () => {
-            setIsLoading(true);
-            // const response = await fetch(
-            //     'https://foodorder-production.up.railway.app/foods'
-            // );
-            // if (!response.ok) {
-            //     setIsError(true);
-            // }
-            // const responseData = await response.json();
-            setIsLoading(false);
-            // setFoods(responseData.foods);
-            setFoods(DUMMY_FOODS);
+            const response = await fetch(
+                import.meta.env.VITE_BACKEND_URL + '/foods'
+            );
+            if (!response.ok) {
+                setIsError(true);
+            }
+            const responseData = await response.json();
+            setFoods(responseData.foods);
+            // setFoods(DUMMY_FOODS);
         };
         const fetchLiquids = async () => {
-            setIsLoading(true);
-            // const response = await fetch(
-            //     'https://foodorder-production.up.railway.app/liquids'
-            // );
-            // if (!response.ok) {
-            //     setIsError(true);
-            // }
-            // const responseData = await response.json();
-            setIsLoading(false);
-            // setLiquids(responseData.liquids);
-            setLiquids(DUMMY_LIQUIDS);
+            const response = await fetch(
+                import.meta.env.VITE_BACKEND_URL + '/liquids'
+            );
+            if (!response.ok) {
+                setIsError(true);
+            }
+            const responseData = await response.json();
+            setLiquids(responseData.liquids);
+            // setLiquids(DUMMY_LIQUIDS);
         };
         try {
+            setIsLoading(true);
             fetchFood();
             fetchLiquids();
+            setIsLoading(false);
         } catch (error) {
             setIsError(true);
         }
     }, []);
+
     return (
         <>
             <h2>Crea il tuo ordine!</h2>
-            {isLoading ? (
+            {isLoading && !isError && (
                 <Spinner animation="border" role="status" />
-            ) : (
-                <OrderList foods={foods} liquids={liquids} />
+            )}
+            {!isLoading && !isError && (
+                <OrderForm>
+                    <OrderList foods={foods} liquids={liquids} />
+                </OrderForm>
+            )}
+            {isError && (
+                <Alert key="danger">Errore nella richiesta dei cibi!</Alert>
+            )}
+            {foods.length === 0 && !isLoading && (
+                <Alert variant="primary">Nessun cibo trovato!</Alert>
+            )}
+            {liquids.length === 0 && !isLoading && (
+                <Alert variant="primary">Nessuna bevanda trovata!</Alert>
             )}
         </>
     );
