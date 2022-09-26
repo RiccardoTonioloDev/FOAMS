@@ -6,7 +6,7 @@ const authController = require('../controllers/auth');
 //SETUP
 const authRouter = express.Router();
 
-// POST /admin/verify
+// POST /auth/verify
 // must send:
 // {
 //     "username": string,
