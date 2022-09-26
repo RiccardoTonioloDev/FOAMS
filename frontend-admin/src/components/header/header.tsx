@@ -1,12 +1,20 @@
 import { ReactNode } from 'react';
 import { Container, Nav, Navbar, NavbarBrand } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import classes from './header.module.css';
+import { RootState } from '../../store/index';
+import { loginActions } from '../../store/login-slice';
 
 type HeaderProps = {
     children: ReactNode;
 };
 const Header = (props: HeaderProps) => {
+    const isLoggedIn = useSelector((state: RootState) => state.login.logged);
+    const dispatch = useDispatch();
+    const onLogoutHandler = () => {
+        dispatch(loginActions.logout(null));
+    };
     return (
         <>
             <header>
@@ -29,7 +37,10 @@ const Header = (props: HeaderProps) => {
                         </NavbarBrand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
-                            <Nav className="me-auto">
+                            <Nav
+                                className="justify-content-end"
+                                style={{ width: '100%' }}
+                            >
                                 <Nav.Link as="div" eventKey={1}>
                                     <NavLink
                                         to="/order"
@@ -66,6 +77,46 @@ const Header = (props: HeaderProps) => {
                                         Stampa ordine
                                     </NavLink>
                                 </Nav.Link>
+                                {!isLoggedIn && (
+                                    <Nav.Link
+                                        onClick={onLogoutHandler}
+                                        as="div"
+                                        eventKey={3}
+                                    >
+                                        <NavLink
+                                            to="/login"
+                                            className={(navData) =>
+                                                navData.isActive
+                                                    ? classes.activeNavLink
+                                                    : classes.navLink
+                                            }
+                                        >
+                                            <svg
+                                                width="16"
+                                                height="16"
+                                                fill="currentColor"
+                                                className="bi bi-lock"
+                                                viewBox="0 0 16 16"
+                                            >
+                                                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+                                            </svg>
+                                        </NavLink>
+                                    </Nav.Link>
+                                )}
+                                {isLoggedIn && (
+                                    <Nav.Link
+                                        onClick={onLogoutHandler}
+                                        as="div"
+                                        eventKey={3}
+                                    >
+                                        <NavLink
+                                            to="/"
+                                            className={classes.navLink}
+                                        >
+                                            Logout
+                                        </NavLink>
+                                    </Nav.Link>
+                                )}
                             </Nav>
                         </Navbar.Collapse>
                     </Container>
