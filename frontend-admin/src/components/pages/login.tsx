@@ -1,4 +1,6 @@
+import React, { useRef, useState } from 'react';
 import {
+    Alert,
     Button,
     Card,
     Container,
@@ -6,24 +8,80 @@ import {
     FormControl,
     FormGroup,
     FormLabel,
+    Spinner,
 } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { loginActions } from '../../store/login-slice';
 import classes from './login.module.css';
 
 const Login = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState({ status: false, message: '' });
+    const [showConfirmAlert, setConfirmAlert] = useState(false);
+    const usernameRef = useRef<HTMLInputElement>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
+    const dispatch = useDispatch();
+    const sendLogin = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setIsError({ status: false, message: '' });
+        setIsLoading(true);
+        let dataFetched;
+        let result;
+        try {
+            dataFetched = await fetch(
+                import.meta.env.VITE_BACKEND_URL + '/auth/verify',
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: usernameRef.current!.value,
+                        password: passwordRef.current!.value,
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            result = (await dataFetched.json()) as {
+                message: string;
+                token: string;
+            };
+            if (!dataFetched.ok) {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                setIsError({ status: true, message: error.message });
+            }
+            setIsError({
+                status: true,
+                message: (error as { message: string }).message,
+            });
+            setIsLoading(false);
+            return;
+        }
+        console.log(result);
+        setIsLoading(false);
+        setConfirmAlert(true);
+        dispatch(loginActions.login(result.token));
+    };
     return (
         <Container className={classes.loginContainer}>
+            {isError.status && (
+                <Alert variant="warning">{isError.message}</Alert>
+            )}
+            {showConfirmAlert && (
+                <Alert variant="primary">Autenticato con successo.</Alert>
+            )}
             <Card style={{ width: '20rem' }}>
                 <Card.Body>
                     <h4>Login</h4>
                 </Card.Body>
-                <Form
-                    className={classes.formStyle}
-                    onSubmit={(event) => event.preventDefault()}
-                >
+                <Form className={classes.formStyle} onSubmit={sendLogin}>
                     <FormGroup>
                         <FormLabel>Username</FormLabel>
                         <FormControl
                             type="text"
+                            ref={usernameRef}
                             required
                             placeholder="Username"
                         />
@@ -32,6 +90,7 @@ const Login = () => {
                         <FormLabel>Password</FormLabel>
                         <FormControl
                             type="password"
+                            ref={passwordRef}
                             required
                             placeholder="Password"
                         />
@@ -42,7 +101,16 @@ const Login = () => {
                             variant="primary"
                             type="submit"
                         >
-                            Invia
+                            {!isLoading && 'Invia'}
+                            {isLoading && (
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                />
+                            )}
                         </Button>
                     </div>
                 </Form>

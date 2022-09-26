@@ -1,4 +1,4 @@
-import { ActionFromReducer, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { Food } from '../types/food';
 import { Liquid } from '../types/liquids';
 type orderItem = {
