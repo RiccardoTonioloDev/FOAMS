@@ -1,7 +1,13 @@
 import { ReactNode } from 'react';
-import { Container, Nav, Navbar, NavbarBrand } from 'react-bootstrap';
+import {
+    Container,
+    Nav,
+    Navbar,
+    NavbarBrand,
+    NavDropdown,
+} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import classes from './header.module.css';
 import { RootState } from '../../store/index';
 import { loginActions } from '../../store/login-slice';
@@ -65,18 +71,59 @@ const Header = (props: HeaderProps) => {
                                         Conferma ordine
                                     </NavLink>
                                 </Nav.Link>
-                                <Nav.Link as="div" eventKey={3}>
-                                    <NavLink
-                                        to="/stampa"
-                                        className={(navData) =>
-                                            navData.isActive
-                                                ? classes.activeNavLink
-                                                : classes.navLink
-                                        }
+                                {isLoggedIn && (
+                                    <NavDropdown
+                                        title="Aggiungi"
+                                        id="basic-nav-dropdown"
                                     >
-                                        Stampa ordine
-                                    </NavLink>
-                                </Nav.Link>
+                                        <NavDropdown.Item>
+                                            <Link
+                                                to="/add-food"
+                                                className={classes.navLink}
+                                            >
+                                                Cibo
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item>
+                                            <Link
+                                                to="/add-ingredient"
+                                                className={classes.navLink}
+                                            >
+                                                Ingredienti
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item>
+                                            <Link
+                                                to="/add-liquid"
+                                                className={classes.navLink}
+                                            >
+                                                Bevande
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item>
+                                            <Link
+                                                to="/add-quantity"
+                                                className={classes.navLink}
+                                            >
+                                                Quantity
+                                            </Link>
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
+                                )}
+                                {isLoggedIn && (
+                                    <Nav.Link as="div" eventKey={3}>
+                                        <NavLink
+                                            to="/print"
+                                            className={(navData) =>
+                                                navData.isActive
+                                                    ? classes.activeNavLink
+                                                    : classes.navLink
+                                            }
+                                        >
+                                            Stampa ordine
+                                        </NavLink>
+                                    </Nav.Link>
+                                )}
                                 {!isLoggedIn && (
                                     <Nav.Link
                                         onClick={onLogoutHandler}
