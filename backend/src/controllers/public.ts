@@ -400,16 +400,17 @@ export const fetchOrder = async (
             include: {
                 OrderFood: {
                     include: {
-                        food: {
-                            include: {
-                                FoodIngredient: {
-                                    select: {
-                                        amount: true,
-                                        ingredientId: true
-                                    }
-                                }
-                            }
-                        }
+                        food: true
+                        // {
+                        //                             include: {
+                        //                                 FoodIngredient: {
+                        //                                     select: {
+                        //                                         amount: true,
+                        //                                         ingredientId: true
+                        //                                     }
+                        //                                 }
+                        //                             }
+                        //                         }
                     }
                 },
                 OrderLiquid: {
@@ -433,10 +434,11 @@ export const fetchOrder = async (
             orderFoodId: orderFood.id,
             quantity: orderFood.quantity,
             name: orderFood.food.name,
+            category: orderFood.food.category,
             foodId: orderFood.food.id,
             price: orderFood.food.price,
-            description: orderFood.description,
-            foodIngredients: orderFood.food.FoodIngredient
+            description: orderFood.description
+            // foodIngredients: orderFood.food.FoodIngredient
         };
     });
     let orderedLiquidReOrganized = orderFetched.OrderLiquid.map(orderLiquid => {
