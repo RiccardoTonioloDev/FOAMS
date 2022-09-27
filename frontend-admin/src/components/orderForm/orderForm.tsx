@@ -12,9 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store/index';
 import { orderActions } from '../../store/order-slice';
-import { Food } from '../../types/food';
 import Item from '../../types/item';
-import { Liquid } from '../../types/liquids';
 
 type orderFormProps = {
     children: ReactNode;
@@ -140,6 +138,15 @@ const OrderForm = (props: orderFormProps) => {
     ) => {
         dispatch(orderActions.setDescription(event.currentTarget.value));
     };
+    const totalPrice =
+        [...order.foods]
+            .concat([...order.liquids])
+            .reduce(
+                (prev, current) => prev + current.price * current.quantity,
+                0
+            )
+            .toFixed(2) || '0.00';
+
     return (
         <Form onSubmit={onSubmitHandler}>
             <FormGroup>
@@ -201,6 +208,7 @@ const OrderForm = (props: orderFormProps) => {
                 <Alert variant="warning">{isError.message}</Alert>
             )}
             {props.children}
+            <h4 style={{ textAlign: 'center' }}>Totale: {totalPrice} €</h4>
             <div className="d-grid gap-2 mb-5">
                 <Button
                     type="submit"
