@@ -1,0 +1,13 @@
+.containerStyling {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+.cardStyling {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
