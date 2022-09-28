@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import ConfirmOrderId from './pages/confirmOrderId';
 import Login from './pages/login';
 import Order from './pages/order';
+import PrintOrderId from './pages/printOrderId';
 import SearchComponent from './pages/searchComponent';
 function App() {
     return (
@@ -24,7 +25,7 @@ function App() {
                         <SearchComponent title="Inserisci l'id dell'ordine da stampare:" />
                     }
                 />
-                <Route path="/print/:orderId" element={<div>Stampa id</div>} />
+                <Route path="/print/:orderId" element={<PrintOrderId />} />
                 <Route path="*" element={<h1>Pagina non trovata.</h1>} />
             </Routes>
         </>
