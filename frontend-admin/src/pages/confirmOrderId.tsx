@@ -129,25 +129,29 @@ const ConfirmOrderId = () => {
     return (
         <>
             {isError.status && !isLoading && (
-                <Alert variant="warning">{isError.message}</Alert>
+                <Alert variant="warning" className="mt-3">
+                    {isError.message}
+                </Alert>
             )}
             {!isError.status && isLoading && (
                 <Spinner animation="border" role="status" />
             )}
             {!isError.status && !isLoading && !fetchedOrder && (
-                <Alert variant="warning">Ordine non trovato.</Alert>
+                <Alert variant="warning" className="mt-3">
+                    Ordine non trovato.
+                </Alert>
             )}
             {!isError.status && !isLoading && fetchedOrder && (
                 <>
                     {confirmed && (
-                        <Alert variant="primary">
+                        <Alert variant="primary" className="mt-3">
                             Ordine confermato con successo! Reindirizzamento
                             alla stampa.
                         </Alert>
                     )}
                     {isErrorTable.status &&
                         (!messages || messages.length === 0) && (
-                            <Alert variant="warning">
+                            <Alert variant="warning" className="mt-3">
                                 Errore di connessione.
                             </Alert>
                         )}
