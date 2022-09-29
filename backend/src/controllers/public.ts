@@ -87,7 +87,8 @@ export const fetchIngredients = async (
         ingredients = await prisma.ingredient.findMany({
             select: {
                 id: true,
-                name: true
+                name: true,
+                quantity: true
             }
         });
     } catch (error) {
