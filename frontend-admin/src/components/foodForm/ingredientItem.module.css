@@ -1,0 +1,14 @@
+.ingredientLayout{
+    display: flex;
+    flex-flow: row;
+    
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ingredientUsage{
+    display: flex;
+    flex-flow: row;
+    justify-content: end;
+    align-items: center;
+}

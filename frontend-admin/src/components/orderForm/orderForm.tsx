@@ -183,7 +183,6 @@ const OrderForm = (props: orderFormProps) => {
                     required
                     type="number"
                     onChange={onChangeNumOfPeopleHandler}
-                    defaultValue={0}
                     placeholder="Numero persone"
                 />
                 <Form.Text className="text-muted">

@@ -105,7 +105,7 @@ const Header = (props: HeaderProps) => {
                                                 to="/add-quantity"
                                                 className={classes.navLink}
                                             >
-                                                Quantity
+                                                Quantità
                                             </Link>
                                         </NavDropdown.Item>
                                     </NavDropdown>
