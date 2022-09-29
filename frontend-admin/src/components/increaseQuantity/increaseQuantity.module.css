@@ -1,0 +1,15 @@
+.pageStyling{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardExternal{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem;
+    width: 30rem;
+}
