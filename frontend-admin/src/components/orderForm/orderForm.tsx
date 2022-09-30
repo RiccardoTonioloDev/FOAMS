@@ -18,6 +18,7 @@ type orderFormProps = {
     children: ReactNode;
 };
 const OrderForm = (props: orderFormProps) => {
+    const logged = useSelector((state: RootState) => state.login.logged);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const [isError, setIsError] = useState({ status: false, message: '' });
@@ -192,17 +193,19 @@ const OrderForm = (props: orderFormProps) => {
                     Inserire il numero di persone.
                 </FormControl.Feedback>
             </FormGroup>
-            <FormGroup>
-                <FormLabel>Descrizione</FormLabel>
-                <FormControl
-                    as="textarea"
-                    rows={2}
-                    value={order.description}
-                    onChange={onChangeDescriptionHandler}
-                    placeholder="Descrivere eventuali dettagli"
-                />
-                <Form.Text className="text-muted">Opzionale</Form.Text>
-            </FormGroup>
+            {logged && (
+                <FormGroup>
+                    <FormLabel>Descrizione</FormLabel>
+                    <FormControl
+                        as="textarea"
+                        rows={2}
+                        value={order.description}
+                        onChange={onChangeDescriptionHandler}
+                        placeholder="Descrivere eventuali dettagli"
+                    />
+                    <Form.Text className="text-muted">Opzionale</Form.Text>
+                </FormGroup>
+            )}
             {isError.status && (
                 <Alert variant="warning">{isError.message}</Alert>
             )}

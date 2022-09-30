@@ -28,11 +28,14 @@ const AddItemForm = (props: AddItemFromProps) => {
         if (!name) {
             errorMessage = 'Inserire un nome valido';
         }
-        if (!secondProperty && props.type === 'liquid') {
+        if (!secondProperty && props.type === 'liquid' && secondProperty < 0) {
             errorMessage =
                 props.type === 'liquid' && 'Inserire un prezzo valido';
         }
         props.onClick(name, secondProperty);
+        nameRef.current!.value = '';
+        if (props.type === 'liquid') priceRef.current!.value = '';
+        if (props.type === 'ingredient') quantityRef.current!.value = '';
     };
 
     return (

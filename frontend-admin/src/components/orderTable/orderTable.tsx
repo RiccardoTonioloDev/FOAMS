@@ -1,4 +1,6 @@
 import { Button, Spinner, Table } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { OrderFood, OrderLiquid } from '../../types/orderItems';
 
 type OrderTableProps = {
@@ -20,6 +22,7 @@ type OrderTableProps = {
     onClick: () => void;
 };
 const OrderTable = (props: OrderTableProps) => {
+    const logged = useSelector((state: RootState) => state.login.logged);
     return (
         <>
             <h3 style={{ textAlign: 'center' }} className="mt-3">
@@ -111,15 +114,17 @@ const OrderTable = (props: OrderTableProps) => {
                 )}
             </div>
             <h5 style={{ textAlign: 'right' }}>Totale: {props.totalPrice} €</h5>
-            <div style={{ textAlign: 'center' }}>
-                <Button onClick={props.onClick} variant="primary">
-                    {props.isLoading ? (
-                        <Spinner animation="border" role="status" />
-                    ) : (
-                        props.buttonName
-                    )}
-                </Button>
-            </div>
+            {logged && (
+                <div style={{ textAlign: 'center' }}>
+                    <Button onClick={props.onClick} variant="primary">
+                        {props.isLoading ? (
+                            <Spinner animation="border" role="status" />
+                        ) : (
+                            props.buttonName
+                        )}
+                    </Button>
+                </div>
+            )}
         </>
     );
 };

@@ -17,6 +17,7 @@ import { useState } from 'react';
 type IncreaseQuantityProps = {
     ingredients: { id: number; name: string; quantity: number }[];
     token: string;
+    updateHandler: () => void;
 };
 const IncreaseQuantity = (props: IncreaseQuantityProps) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +40,10 @@ const IncreaseQuantity = (props: IncreaseQuantityProps) => {
         setIsError(false);
         setInvalidForm(false);
         if (selectValue < 0) {
+            setInvalidForm(true);
+            return;
+        }
+        if (+quantityRef.current!.value < 1) {
             setInvalidForm(true);
             return;
         }
@@ -67,6 +72,8 @@ const IncreaseQuantity = (props: IncreaseQuantityProps) => {
             }
             setDataFetched(await result.json());
             setSuccess(true);
+            props.updateHandler();
+            quantityRef.current!.value = '';
         } catch (error) {
             setIsError(true);
         }
@@ -87,8 +94,7 @@ const IncreaseQuantity = (props: IncreaseQuantityProps) => {
                 )}
                 {success && dataFetched && (
                     <Alert className="mt-2" variant="primary">
-                        Quantità incrementata con successo.{' '}
-                        <Badge bg="primary">{dataFetched.item.quantity}</Badge>
+                        Quantità incrementata con successo.
                     </Alert>
                 )}
                 <Card className={classes.cardExternal}>
@@ -140,6 +146,7 @@ const IncreaseQuantity = (props: IncreaseQuantityProps) => {
                                 <FormControl
                                     ref={quantityRef}
                                     type="number"
+                                    min={1}
                                     required
                                     placeholder="Quantità"
                                 ></FormControl>

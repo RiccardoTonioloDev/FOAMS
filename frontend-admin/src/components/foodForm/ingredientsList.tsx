@@ -14,7 +14,7 @@ const IngredientsList = (props: IngredientsListProps) => {
                 className="p-3"
                 style={{
                     overflowY: 'scroll',
-                    height: '22rem',
+                    maxHeight: '22rem',
                     border: '1px solid lightblue',
                     borderRadius: '15px',
                 }}
