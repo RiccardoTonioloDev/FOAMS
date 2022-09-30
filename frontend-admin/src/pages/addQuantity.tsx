@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Alert, Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import IncreaseQuantity from '../components/increaseQuantity/increaseQuantity';
 import { RootState } from '../store';
 
 const AddQuantity = () => {
+    const [updateState, setUpdateState] = useState(false);
     const [isLoadingStart, setIsLoadingStart] = useState(false);
     const login = useSelector((state: RootState) => state.login);
     const [isErrorStart, setErrorStart] = useState(false);
@@ -12,6 +14,9 @@ const AddQuantity = () => {
         ingredients: { id: number; name: string; quantity: number }[];
     }>({ ingredients: [] });
     const [fetched, setFetched] = useState(false);
+    const updateHandler = () => {
+        setUpdateState((prevState) => !prevState);
+    };
     useEffect(() => {
         const fetchIngredients = async () => {
             const result = await fetch(
@@ -31,7 +36,10 @@ const AddQuantity = () => {
         if (!fetched) {
             setFetched(true);
         }
-    }, []);
+    }, [updateState]);
+    if (!login.logged) {
+        return <Navigate to="/order" />;
+    }
     return (
         <>
             {isLoadingStart && <Spinner animation="border" role="status" />}
@@ -49,6 +57,7 @@ const AddQuantity = () => {
                 <IncreaseQuantity
                     ingredients={ingredientsFetched.ingredients}
                     token={login.token}
+                    updateHandler={updateHandler}
                 />
             )}
         </>

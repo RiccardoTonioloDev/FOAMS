@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import FoodForm from '../components/foodForm/foodForm';
 import IncreaseQuantity from '../components/increaseQuantity/increaseQuantity';
 import { RootState } from '../store';
@@ -33,6 +34,9 @@ const AddFood = () => {
             setFetched(true);
         }
     }, []);
+    if (!login.logged) {
+        return <Navigate to="/order" />;
+    }
     return (
         <>
             {isLoadingStart && <Spinner animation="border" role="status" />}

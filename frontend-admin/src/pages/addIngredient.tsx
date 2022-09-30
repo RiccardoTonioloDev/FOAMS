@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 import AddItemForm from '../components/addItemForm/addItemForm';
 import { RootState } from '../store';
 
@@ -43,6 +44,9 @@ const AddIngredient = () => {
         }
         setIsLoading(false);
     };
+    if (!login.logged) {
+        return <Navigate to="/order" />;
+    }
 
     return (
         <>

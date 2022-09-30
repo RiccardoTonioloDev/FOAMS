@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Accordion, Alert, Spinner } from 'react-bootstrap';
 import AccordionItem from 'react-bootstrap/esm/AccordionItem';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import OrderTable from '../components/orderTable/orderTable';
 import { RootState } from '../store';
 import Order from '../types/order';
@@ -121,11 +121,6 @@ const ConfirmOrderId = () => {
         fetchOrder();
     }, [params.orderId]);
 
-    if (!logged.logged) {
-        navigate('/order', { replace: true });
-        return <></>;
-    }
-
     return (
         <>
             {isError.status && !isLoading && (
@@ -143,6 +138,40 @@ const ConfirmOrderId = () => {
             )}
             {!isError.status && !isLoading && fetchedOrder && (
                 <>
+                    {!logged.logged && (
+                        <div
+                            style={{
+                                marginTop: '2rem',
+                                display: 'flex',
+                                flexFlow: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <h3
+                                style={{
+                                    margin: 0,
+                                    textDecoration: 'underline',
+                                }}
+                            >
+                                Ordine numero: {fetchedOrder.id}
+                            </h3>
+                            <p
+                                style={{
+                                    margin: 0,
+                                    color: 'red',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                Non perdere questo numero o perderai il tuo
+                                ordine!
+                            </p>
+                            <p style={{ margin: 0, textAlign: 'center' }}>
+                                Porta questo numero alla cassa per pagare
+                                l'ordine.
+                            </p>
+                        </div>
+                    )}
                     {confirmed && (
                         <Alert variant="primary" className="mt-3">
                             Ordine confermato con successo! Reindirizzamento

@@ -14,14 +14,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginActions } from '../store/login-slice';
 import { RootState } from '../store/index';
 import classes from './login.module.css';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const isLoggedIn = useSelector((state: RootState) => state.login.logged);
     const navigate = useNavigate();
-    if (isLoggedIn) {
-        navigate('/order', { replace: true });
-    }
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState({ status: false, message: '' });
     const [showConfirmAlert, setConfirmAlert] = useState(false);
@@ -66,11 +63,14 @@ const Login = () => {
             setIsLoading(false);
             return;
         }
-        console.log(result);
         setIsLoading(false);
         setConfirmAlert(true);
         dispatch(loginActions.login(result.token));
     };
+
+    if (isLoggedIn) {
+        return <Navigate to="/order" />;
+    }
     return (
         <Container className={classes.loginContainer}>
             {isError.status && (

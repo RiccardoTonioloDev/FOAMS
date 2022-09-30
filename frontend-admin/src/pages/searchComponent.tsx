@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
 import { Alert, Button, Card, Container, Form } from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { RootState } from '../store';
 import classes from './searchComponent.module.css';
 
 type SearchComponentProps = {
@@ -9,6 +11,7 @@ type SearchComponentProps = {
 };
 const SearchComponent = (props: SearchComponentProps) => {
     const [invalidInput, setInvalidInput] = useState(false);
+    const logged = useSelector((state: RootState) => state.login.logged);
     const navigate = useNavigate();
     const numberInputRef = useRef<HTMLInputElement>(null);
     const onClickHandler = () => {
@@ -20,6 +23,9 @@ const SearchComponent = (props: SearchComponentProps) => {
         }
         navigate(orderId, { replace: false });
     };
+    if (!logged) {
+        return <Navigate to="/order" />;
+    }
 
     return (
         <Container className={classes.containerStyling}>

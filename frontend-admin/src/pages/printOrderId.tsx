@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Accordion, Alert, Spinner } from 'react-bootstrap';
 import AccordionItem from 'react-bootstrap/esm/AccordionItem';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import OrderTable from '../components/orderTable/orderTable';
 import { RootState } from '../store';
 import Order from '../types/order';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const PrintOrderId = () => {
@@ -293,7 +293,10 @@ const PrintOrderId = () => {
                               ],
                           },
                       }
-                    : 'Nessuna bevanda.',
+                    : {
+                          text: 'Nessuna bevanda.',
+                          absolutePosition: { x: 40, y: 580 },
+                      },
                 {
                     style: 'tableExample',
                     absolutePosition: { x: 445, y: 781 },
@@ -316,7 +319,9 @@ const PrintOrderId = () => {
         };
         pdfMake.createPdf(docDefinition as any).download();
     };
-
+    if (!logged) {
+        return <Navigate to="/order" />;
+    }
     return (
         <>
             {isError.status && !isLoading && (
