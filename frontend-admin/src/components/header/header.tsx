@@ -59,18 +59,34 @@ const Header = (props: HeaderProps) => {
                                         Crea un ordine
                                     </NavLink>
                                 </Nav.Link>
-                                <Nav.Link as="div" eventKey={2}>
-                                    <NavLink
-                                        to="/confirm"
-                                        className={(navData) =>
-                                            navData.isActive
-                                                ? classes.activeNavLink
-                                                : classes.navLink
-                                        }
-                                    >
-                                        Conferma ordine
-                                    </NavLink>
-                                </Nav.Link>
+                                {isLoggedIn && (
+                                    <Nav.Link as="div" eventKey={2}>
+                                        <NavLink
+                                            to="/confirm"
+                                            className={(navData) =>
+                                                navData.isActive
+                                                    ? classes.activeNavLink
+                                                    : classes.navLink
+                                            }
+                                        >
+                                            Conferma ordine
+                                        </NavLink>
+                                    </Nav.Link>
+                                )}
+                                {isLoggedIn && (
+                                    <Nav.Link as="div" eventKey={3}>
+                                        <NavLink
+                                            to="/print"
+                                            className={(navData) =>
+                                                navData.isActive
+                                                    ? classes.activeNavLink
+                                                    : classes.navLink
+                                            }
+                                        >
+                                            Stampa ordine
+                                        </NavLink>
+                                    </Nav.Link>
+                                )}
                                 {isLoggedIn && (
                                     <NavDropdown
                                         title="Aggiungi"
@@ -113,14 +129,14 @@ const Header = (props: HeaderProps) => {
                                 {isLoggedIn && (
                                     <Nav.Link as="div" eventKey={3}>
                                         <NavLink
-                                            to="/print"
+                                            to="/delete"
                                             className={(navData) =>
                                                 navData.isActive
                                                     ? classes.activeNavLink
                                                     : classes.navLink
                                             }
                                         >
-                                            Stampa ordine
+                                            Elimina
                                         </NavLink>
                                     </Nav.Link>
                                 )}
