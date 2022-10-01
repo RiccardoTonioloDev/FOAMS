@@ -1,0 +1,6 @@
+{
+    "redirects": [
+        { "source": "/order", "destination": "/order" },
+        { "source": "*", "destination": "/order" }
+    ]
+}

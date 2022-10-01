@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { Suspense } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import Order from './pages/order';
 
 const AddFood = React.lazy(() => import('./pages/addFood'));
 const AddIngredient = React.lazy(() => import('./pages/addIngredient'));
@@ -10,7 +11,6 @@ const AddQuantity = React.lazy(() => import('./pages/addQuantity'));
 const ConfirmOrderId = React.lazy(() => import('./pages/confirmOrderId'));
 const Delete = React.lazy(() => import('./pages/delete'));
 const Login = React.lazy(() => import('./pages/login'));
-const Order = React.lazy(() => import('./pages/order'));
 const PrintOrderId = React.lazy(() => import('./pages/printOrderId'));
 const SearchComponent = React.lazy(() => import('./pages/searchComponent'));
 
