@@ -156,6 +156,8 @@ const OrderForm = (props: orderFormProps) => {
                     onChange={onChangeNameHandler}
                     required
                     type="text"
+                    minLength={1}
+                    maxLength={20}
                     value={order.name}
                     placeholder="Nome"
                 />
@@ -169,6 +171,8 @@ const OrderForm = (props: orderFormProps) => {
                 <FormControl
                     onChange={onChangeSurnameHandler}
                     required
+                    minLength={1}
+                    maxLength={20}
                     type="text"
                     value={order.surname}
                     placeholder="Cognome"
@@ -183,6 +187,8 @@ const OrderForm = (props: orderFormProps) => {
                 <FormControl
                     required
                     type="number"
+                    min={0}
+                    max={50}
                     onChange={onChangeNumOfPeopleHandler}
                     placeholder="Numero persone"
                 />
