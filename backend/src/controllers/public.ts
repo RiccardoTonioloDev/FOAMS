@@ -287,6 +287,7 @@ export const createOrder = async (
                     }
                 },
                 select: {
+                    id: true,
                     price: true
                 }
             });
@@ -320,6 +321,10 @@ export const createOrder = async (
                             liquid => liquid.id
                         )
                     }
+                },
+                select: {
+                    id: true,
+                    price: true
                 }
             });
         } catch (error) {
@@ -342,13 +347,33 @@ export const createOrder = async (
     }
     let totalPrice = 0;
     if (foodsPrices && foodsPrices.length > 0) {
-        totalPrice += foodsPrices.reduce((prev, curr) => prev + curr.price, 0);
+        totalPrice += foodsPrices.reduce((prev, curr) => {
+            const indexOfFood = orderToAdd.data.order.foods!.findIndex(
+                food => food.id === curr.id
+            );
+            if (indexOfFood === -1) {
+                return prev;
+            }
+            return (
+                prev +
+                curr.price * orderToAdd.data.order.foods![indexOfFood].quantity
+            );
+        }, 0);
     }
     if (liquidsPrices && liquidsPrices.length > 0) {
-        totalPrice += liquidsPrices.reduce(
-            (prev, curr) => prev + curr.price,
-            0
-        );
+        totalPrice += liquidsPrices.reduce((prev, curr) => {
+            const indexOfLiquid = orderToAdd.data.order.liquids!.findIndex(
+                liquid => liquid.id === curr.id
+            );
+            if (indexOfLiquid === -1) {
+                return prev;
+            }
+            return (
+                prev +
+                curr.price *
+                    orderToAdd.data.order.liquids![indexOfLiquid].quantity
+            );
+        }, 0);
     }
     buildedQuery.totalPrice = parseFloat(totalPrice.toFixed(2));
     let addedOrder;
