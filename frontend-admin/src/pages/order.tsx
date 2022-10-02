@@ -4,6 +4,7 @@ import { Food } from '../types/food';
 import { Liquid } from '../types/liquids';
 import OrderForm from '../components/orderForm/orderForm';
 import OrderList from '../components/orderList/order-list';
+import Footer from '../components/footer/footer';
 
 const Order = () => {
     const [foods, setFoods] = useState<Food[]>([]);
@@ -59,17 +60,22 @@ const Order = () => {
                 <Alert key="danger">Errore nella richiesta dei cibi!</Alert>
             )}
             {!isLoading && !isError && (
-                <OrderForm>
-                    {foods.length === 0 && !isLoading && (
-                        <Alert variant="primary">Nessun cibo trovato!</Alert>
-                    )}
-                    <OrderList foods={foods} liquids={liquids} />
-                    {liquids.length === 0 && !isLoading && (
-                        <Alert variant="primary">
-                            Nessuna bevanda trovata!
-                        </Alert>
-                    )}
-                </OrderForm>
+                <>
+                    <OrderForm>
+                        {foods.length === 0 && !isLoading && (
+                            <Alert variant="primary">
+                                Nessun cibo trovato!
+                            </Alert>
+                        )}
+                        <OrderList foods={foods} liquids={liquids} />
+                        {liquids.length === 0 && !isLoading && (
+                            <Alert variant="primary">
+                                Nessuna bevanda trovata!
+                            </Alert>
+                        )}
+                    </OrderForm>
+                    <Footer />
+                </>
             )}
         </>
     );
