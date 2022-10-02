@@ -129,7 +129,10 @@ const ConfirmOrderId = () => {
                 </Alert>
             )}
             {!isError.status && isLoading && (
-                <Spinner animation="border" role="status" />
+                <>
+                    <Spinner animation="border" role="status" />
+                    <div>Caricamento dell'ordine...</div>
+                </>
             )}
             {!isError.status && !isLoading && !fetchedOrder && (
                 <Alert variant="warning" className="mt-3">
