@@ -9,7 +9,6 @@ export const fetchFood = async (
     next: NextFunction
 ) => {
     let foods;
-    let ingredients: { id: number }[];
     try {
         foods = await prisma.food.findMany({
             select: {
@@ -28,16 +27,17 @@ export const fetchFood = async (
                         }
                     }
                 }
-            }
-        });
-        ingredients = await prisma.ingredient.findMany({
-            where: {
-                quantity: {
-                    gte: 10
-                }
             },
-            select: {
-                id: true
+            where: {
+                FoodIngredient: {
+                    every: {
+                        ingredient: {
+                            quantity: {
+                                gte: 10
+                            }
+                        }
+                    }
+                }
             }
         });
     } catch (error) {
@@ -46,35 +46,7 @@ export const fetchFood = async (
         }
         return errorGenerator('Internal server error', 500, next);
     }
-    const refinedFood: {
-        id: number;
-        name: string;
-        price: number;
-        category: string;
-        FoodIngredient: {
-            amount: number;
-            ingredient: {
-                id: number;
-                name: string;
-            };
-        }[];
-    }[] = [];
-    foods.forEach(food => {
-        let compromisedFood = false;
-        food.FoodIngredient.forEach(foodIngredient => {
-            if (
-                ingredients.findIndex(
-                    ingredient => ingredient.id === foodIngredient.ingredient.id
-                ) === -1
-            ) {
-                compromisedFood = true;
-            }
-        });
-        if (!compromisedFood) {
-            refinedFood.push(food);
-        }
-    });
-    return res.status(200).json({ foods: refinedFood });
+    return res.status(200).json({ foods: foods });
 };
 
 export const fetchIngredients = async (
@@ -427,16 +399,6 @@ export const fetchOrder = async (
                 OrderFood: {
                     include: {
                         food: true
-                        // {
-                        //                             include: {
-                        //                                 FoodIngredient: {
-                        //                                     select: {
-                        //                                         amount: true,
-                        //                                         ingredientId: true
-                        //                                     }
-                        //                                 }
-                        //                             }
-                        //                         }
                     }
                 },
                 OrderLiquid: {
@@ -464,7 +426,6 @@ export const fetchOrder = async (
             foodId: orderFood.food.id,
             price: orderFood.food.price,
             description: orderFood.description
-            // foodIngredients: orderFood.food.FoodIngredient
         };
     });
     let orderedLiquidReOrganized = orderFetched.OrderLiquid.map(orderLiquid => {
