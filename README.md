@@ -35,7 +35,7 @@ You have to create an account, and then create a database following <a href="htt
 <p>Now that you have a new database, click on the connect button (in the `overview` section), and choose `prisma` in the `connect with` section.<br/>
 You will see the connection URL, that you have to copy (with the Username and Password of the database written inside it), and paste inside the `.env` (you have to create it first) file, inside the `backend` folder, written this way:
 </p>
-`DATABASE_URL='mysql://hanusndo9o9im9x3s5p6:************@eu-central.connect.psdb.cloud/san-lorenzo-db?sslaccept=strict'`
+`DATABASE_URL='mysql://*************:************@eu-central.connect.psdb.cloud/san-lorenzo-db?sslaccept=strict'`
 <p>When you did that and saved the file, run the following CLI comand `npx prisma db push`, to change the schema of the database on Planetscale.</p>
 <p align="center">____________________________</p>
 <h3>Setting up authentication & the backend:</h3>
